@@ -1,5 +1,5 @@
 extern "C" {
-#include "../util/fixpoint_util.h"
+#include "fixpoint_util.h"
 }
 
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
