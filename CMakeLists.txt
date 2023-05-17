@@ -74,7 +74,7 @@ add_custom_command(
   OUTPUT "test-fix.wasm"
   DEPENDS test-fix-no-storage.wasm
           test
-          test.cc
+          interpreter.cc
           ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
           --debug-names

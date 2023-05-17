@@ -1,6 +1,3 @@
-extern "C" {
-#include "fixpoint_util.h"
-}
 #include "interpreter.hh"
 
 const vector<string> lex(const string& src)
@@ -154,20 +151,17 @@ void driver()
 
 /* encode[0]: resource limits
    encode[1]: this program
-   encode[2]: serialized state
+   encode[2]: Ctx
 */
 __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
-/*
-1. Read encode
-2. Construct EvalCtx
-3. Call eval(ctx)
-  3.1 Construct encodes for eval of each arg
-  3.2 Put these encodes into a tree
-4. Call apply
-  4.1 It always takes two ints and a string (proc)
-*/
+  attach_tree_ro_table_0(encode);
+  attach_blob_ro_mem_0(get_ro_table_0(2));
+  size_t size = byte_size_ro_mem_0();
+  char *buf = (char *)malloc((unsigned long) size);
+  ro_mem_0_to_program_memory((int32_t)buf, 0, size);
+  fixpoint_unsafe_io(buf, size);
 
   driver();
   return create_blob_i32(93);
