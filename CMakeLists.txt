@@ -32,19 +32,30 @@ add_executable(test "test.cc")
 target_link_libraries(test stub-obj)
 
 add_custom_command(
-  OUTPUT "wasi_snapshot_preview1_no_apply.wasm"
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/wasi_snapshot_preview1.wasm
+  OUTPUT "linked_with_asm_no_apply.wasm"
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linked_with_asm_flatware.wasm
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/export-audit/export-audit
           --enable-multi-memory
           --enable-exceptions
           -r _fixpoint_apply
-          ${CMAKE_CURRENT_SOURCE_DIR}/wasi_snapshot_preview1.wasm
-          wasi_snapshot_preview1_no_apply.wasm
+          ${CMAKE_CURRENT_SOURCE_DIR}/linked_with_asm_flatware.wasm
+          linked_with_asm_no_apply.wasm
 )
 
 add_custom_command(
-  OUTPUT "test-fix.wasm"
-  DEPENDS wasi_snapshot_preview1_no_apply.wasm
+  OUTPUT "linked_with_asm_no_memory.wasm"
+  DEPENDS linked_with_asm_no_apply.wasm
+  COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/export-audit/export-audit
+          --enable-multi-memory
+          --enable-exceptions
+          -r memory
+          linked_with_asm_no_apply.wasm
+          linked_with_asm_no_memory.wasm
+)
+
+add_custom_command(
+  OUTPUT "test-fix-no-storage.wasm"
+  DEPENDS linked_with_asm_no_memory.wasm
           test
           test.cc
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
@@ -52,9 +63,26 @@ add_custom_command(
           --enable-multi-memory
           --enable-exceptions
           test
-          wasi_snapshot_preview1_no_apply.wasm
+          linked_with_asm_no_memory.wasm
           -m wasi_command
           -n wasi_snapshot_preview1
+          -o "test-fix-no-storage.wasm"
+)
+
+add_custom_command(
+  OUTPUT "test-fix.wasm"
+  DEPENDS test-fix-no-storage.wasm
+          test
+          test.cc
+          ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+  COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
+          --debug-names
+          --enable-multi-memory
+          --enable-exceptions
+          test-fix-no-storage.wasm
+          ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+          -m wasi_command
+          -n fixpoint_storage
           -o "test-fix.wasm"
 )
 
