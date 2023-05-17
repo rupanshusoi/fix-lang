@@ -25,6 +25,7 @@ struct Node
   string arg;
   vector<Node> list;
 
+  Node() = default;
   Node(vector<Node> list) : is_list(true), arg(""), list(list) {};
   Node (string arg) : is_list(false), arg(arg), list(vector<Node>()) {};
 
