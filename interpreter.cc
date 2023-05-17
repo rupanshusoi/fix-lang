@@ -131,24 +131,6 @@ Value eval(EvalCtx ctx)
   return apply(apply_ctx);
 }
 
-void driver()
-{
-  const string src = "(* 4 (* (* 3 4) 7))";
-  const auto tokens = lex(src);
-  const auto lines = parse(tokens);
-
-  const map<string, int> env;
-  Value result;
-  for (auto& line: lines)
-  {
-    Node wrapper(line);
-    EvalCtx eval_ctx(wrapper, env);
-    result = eval(eval_ctx);
-  }
-  // cout << result.get_int() << endl;
-  fixpoint_unsafe_io(to_string(result.get_int()).c_str(), 5);
-}
-
 /* encode[0]: resource limits
    encode[1]: this program
    encode[2]: Ctx
@@ -159,11 +141,28 @@ externref _fixpoint_apply(externref encode)
   attach_tree_ro_table_0(encode);
   attach_blob_ro_mem_0(get_ro_table_0(2));
   size_t size = byte_size_ro_mem_0();
-  char *buf = (char *)malloc((unsigned long) size);
+  char *buf = (char *)malloc(size);
   ro_mem_0_to_program_memory((int32_t)buf, 0, size);
-  fixpoint_unsafe_io(buf, size);
 
-  driver();
-  return create_blob_i32(93);
+  // Trim whitespace
+  if (buf[0] == '(')
+  {
+    const string src(buf, size);
+    const auto tokens = lex(src);
+
+    // Todo
+    const auto line = parse(tokens)[0];
+
+    const map<string, int> env;
+    Value result;
+
+    Node wrapper(line);
+    EvalCtx eval_ctx(wrapper, env);
+    result = eval(eval_ctx);
+
+    string answer = to_string(result.get_int());
+    fio(answer.c_str(), answer.size());
+  }
+
+  return create_blob_i32(0);
 }
-

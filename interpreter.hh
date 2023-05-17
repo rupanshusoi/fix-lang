@@ -57,6 +57,7 @@ struct EvalCtx
   Node ast;
   const map<string, int> env;
 
+  EvalCtx() = default;
   EvalCtx(Node ast, const map<string, int> env) : ast(ast), env(env) {}
 
   template<class Archive>
@@ -71,6 +72,7 @@ struct ApplyCtx
   string proc;
   vector<Value> values;
 
+  ApplyCtx() = default;
   ApplyCtx(string proc, vector<Value> values) : proc(proc), values(values) {}
 
   template<class Archive>
@@ -92,3 +94,9 @@ struct Ctx
     archive(is_eval, eval_ctx, apply_ctx);
   }
 };
+
+void fio(const char *txt, size_t size)
+{
+  fixpoint_unsafe_io(txt, size);
+}
+
