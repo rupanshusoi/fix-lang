@@ -47,6 +47,7 @@ add_custom_command(
   DEPENDS wasi_snapshot_preview1_no_apply.wasm
           test
           interpreter.cc
+          interpreter.hh
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
           --debug-names
           --enable-multi-memory

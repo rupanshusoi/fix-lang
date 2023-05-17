@@ -7,6 +7,12 @@
 #include <cereal/archives/xml.hpp>
 #include <cereal/types/map.hpp>
 
+extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
+__attribute( ( import_module( "util" ), import_name( "ro_mem_0_to_program_memory" ) ) );
+
+extern void program_memory_to_rw_0( int32_t rw_offset, int32_t program_offset, int32_t len )
+__attribute( ( import_module( "util" ), import_name( "program_memory_to_rw_0" ) ) );
+
 using namespace std;
 
 struct Node
