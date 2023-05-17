@@ -28,7 +28,7 @@ add_link_options(-nostdlib -Wl,--no-entry -Wl,--allow-undefined
                  $ENV{HOME}/wasm-toolchain/sysroot/lib/clang/16.0.0/lib/wasi/libclang_rt.builtins-wasm32.a)
 
 add_library(stub-obj OBJECT "ignore.cc")
-add_executable(test "test.cc")
+add_executable(test "interpreter.cc")
 target_link_libraries(test stub-obj)
 
 add_custom_command(
@@ -46,7 +46,7 @@ add_custom_command(
   OUTPUT "test-fix.wasm"
   DEPENDS wasi_snapshot_preview1_no_apply.wasm
           test
-          test.cc
+          interpreter.cc
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
           --debug-names
           --enable-multi-memory

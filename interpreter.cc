@@ -1,6 +1,7 @@
 extern "C" {
 #include "fixpoint_util.h"
 }
+#include "interpreter.hh"
 
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
 __attribute( ( import_module( "util" ), import_name( "ro_mem_0_to_program_memory" ) ) );
@@ -8,7 +9,6 @@ __attribute( ( import_module( "util" ), import_name( "ro_mem_0_to_program_memory
 extern void program_memory_to_rw_0( int32_t rw_offset, int32_t program_offset, int32_t len )
 __attribute( ( import_module( "util" ), import_name( "program_memory_to_rw_0" ) ) );
 
-#include "test.hh"
 
 const vector<string> lex(const string& src)
 {
