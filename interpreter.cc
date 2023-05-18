@@ -94,99 +94,73 @@ void test_parse(const vector<vector<Node>> parsed_lines)
     _test_parse(line);
 }
 
-// Value apply(ApplyCtx apply_ctx)
-// {
-//   auto proc = apply_ctx.proc;
-//   auto values = apply_ctx.values;
-// 
-//   if (proc == "+")
-//     return Value(values[0].get_int() + values[1].get_int());
-//   else if (proc == "-")
-//     return Value(values[0].get_int() - values[1].get_int());
-//   else if (proc == "*")
-//     return Value(values[0].get_int() * values[1].get_int());
-//   assert(false);
-// }
-
-externref eval(Node ast)
+void make_table_1(Node node)
 {
-  // if (!ast.is_list)
-  // {
-  //   if (isdigit(ast.arg[0]))
-  //     return ApplyCtx(Value(stoi(ast.arg)));
-  //   else
-  //     return ApplyCtx(Value(env[ast.arg]));
-  // }
-  
-  fio("G", 1);
-  grow_rw_table_0(5, get_ro_table_0(0));
-  set_rw_table_0(0, get_ro_table_0(0));
-  set_rw_table_0(1, get_ro_table_0(1));
-
-  grow_rw_mem_0_pages(1000);
-  fio("H", 1);
-
-  const char* op = "+";
-  program_memory_to_rw_0(0, (int32_t)op, 1);
-  set_rw_table_0(2, create_blob_rw_mem_0(1));
-
-  fio("I", 1);
-  // Serialize Node(ast[1])
   grow_rw_table_1(3, get_ro_table_0(0));
   set_rw_table_1(0, get_ro_table_0(0));
   set_rw_table_1(1, get_ro_table_0(1));
-  Node node = ast[1];
-  fio("1", 1);
   stringstream s;
   {
     cereal::XMLOutputArchive oarchive(s);
     oarchive(node);
   }
-  fio("2", 1);
   string ss = s.str();
   const char *ss_ptr = ss.c_str();
   grow_rw_mem_0_pages(1000);
   program_memory_to_rw_0(0, (int32_t)ss_ptr, strlen(ss_ptr));
-  fio("3", 1);
   set_rw_table_1(2, create_blob_rw_mem_0(ss.size()));
-  fio("4", 1);
-  fio("J", 1);
+}
 
+void make_table_2(Node node)
+{
+  grow_rw_table_2(3, get_ro_table_0(0));
+  set_rw_table_2(0, get_ro_table_0(0));
+  set_rw_table_2(1, get_ro_table_0(1));
+  stringstream s;
   {
-    // Serialize Node(ast[2])
-    grow_rw_table_2(3, get_ro_table_0(0));
-    set_rw_table_2(0, get_ro_table_0(0));
-    set_rw_table_2(1, get_ro_table_0(1));
-    Node node = ast[2];
-    fio("1", 1);
-    stringstream s;
-    {
-      cereal::XMLOutputArchive oarchive(s);
-      oarchive(node);
-    }
-    fio("2", 1);
-    string ss = s.str();
-    const char *ss_ptr = ss.c_str();
-    grow_rw_mem_0_pages(1000);
-    program_memory_to_rw_0(0, (int32_t)ss_ptr, strlen(ss_ptr));
-    fio("3", 1);
-    set_rw_table_2(2, create_blob_rw_mem_0(ss.size()));
-    fio("4", 1);
-    fio("J", 1);
+    cereal::XMLOutputArchive oarchive(s);
+    oarchive(node);
   }
+  string ss = s.str();
+  const char *ss_ptr = ss.c_str();
+  grow_rw_mem_0_pages(1000);
+  program_memory_to_rw_0(0, (int32_t)ss_ptr, strlen(ss_ptr));
+  set_rw_table_2(2, create_blob_rw_mem_0(ss.size()));
+}
+
+externref eval(Node ast)
+{
+  grow_rw_table_0(5, get_ro_table_0(0));
+  set_rw_table_0(0, get_ro_table_0(0));
+  set_rw_table_0(1, get_ro_table_0(1));
+
+  const char* op = "+";
+  grow_rw_mem_0_pages(1000);
+  program_memory_to_rw_0(0, (int32_t)op, 1);
+  set_rw_table_0(2, create_blob_rw_mem_0(1));
+
+  make_table_1(ast[1]);
+  make_table_2(ast[2]);
 
   set_rw_table_0(3, create_thunk(create_tree_rw_table_1(3)));
-  fio("5", 1);
   set_rw_table_0(4, create_thunk(create_tree_rw_table_2(3)));
-  fio("6", 1);
 
   return create_thunk(create_tree_rw_table_0(5));
+}
+
+// Currently only adds two ints
+externref apply()
+{
+  attach_blob_ro_mem_0(get_ro_table_0(3));
+  int x = get_i32_ro_mem_0(0);
+  attach_blob_ro_mem_0(get_ro_table_0(4));
+  int y = get_i32_ro_mem_0(0);
+  return create_blob_i32(x + y);
 }
 
 __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
-  fio("A", 1);
 
   attach_tree_ro_table_0(encode);
   attach_blob_ro_mem_0(get_ro_table_0(2));
@@ -194,11 +168,9 @@ externref _fixpoint_apply(externref encode)
   char *buf = (char *)malloc(size);
   ro_mem_0_to_program_memory((int32_t)buf, 0, size);
 
-  fio("B", 1);
   // Trim whitespace
   if (buf[0] == '(')
   {
-    fio("C", 1);
     const string src(buf, size);
     const auto tokens = lex(src);
 
@@ -212,14 +184,7 @@ externref _fixpoint_apply(externref encode)
   }
   else if (buf[0] == '+')
   {
-    fio("D", 1);
-    // This is apply, basically
-    attach_blob_ro_mem_0(get_ro_table_0(3));
-    int x = get_i32_ro_mem_0(0);
-    attach_blob_ro_mem_0(get_ro_table_0(4));
-    int y = get_i32_ro_mem_0(0);
-    fio(to_string(x + y).c_str(), 2);
-    return create_blob_i32(x + y);
+    return apply();
   }
   else if (buf[0] == '<')
   {
@@ -231,6 +196,5 @@ externref _fixpoint_apply(externref encode)
     return create_blob_i32(stoi(node.arg));
   }
 
-  fio("F", 1);
   assert(false);
 }
