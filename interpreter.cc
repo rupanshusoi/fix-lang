@@ -139,9 +139,10 @@ externref eval(Node ast)
   set_rw_table_0(1, get_ro_table_0(1));
 
   const char* op = "+";
-  grow_rw_mem_0_pages(1000);
+  size_t size = strlen(op);
+  grow_rw_mem_0_pages(size);
   program_memory_to_rw_0(0, (int32_t)op, 1);
-  set_rw_table_0(2, create_blob_rw_mem_0(1));
+  set_rw_table_0(2, create_blob_rw_mem_0(size));
 
   make_table_1(ast[1]);
   make_table_2(ast[2]);
@@ -150,6 +151,16 @@ externref eval(Node ast)
   set_rw_table_0(4, create_thunk(create_tree_rw_table_2(3)));
 
   return create_thunk(create_tree_rw_table_0(5));
+}
+
+Node make_node(const char *buf, size_t size)
+{
+  string s(buf, size);
+  stringstream ss(s);
+  cereal::XMLInputArchive iarchive(ss);
+  Node node;
+  iarchive(node);
+  return node;
 }
 
 // Currently only adds two ints
@@ -181,23 +192,19 @@ externref _fixpoint_apply(externref encode)
     // Todo
     const auto line = parse(tokens)[0];
 
-    const map<string, int> env;
-
     Node wrapper(line);
     return eval(wrapper);
+  }
+  else if (buf[0] == '<')
+  {
+    Node node = make_node(buf, size);
+    if (!node.is_list)
+      return create_blob_i32(stoi(node.arg));
+    return eval(node.list);
   }
   else if (buf[0] == '+')
   {
     return apply();
-  }
-  else if (buf[0] == '<')
-  {
-    string s(buf, size);
-    stringstream ss(s);
-    cereal::XMLInputArchive iarchive(ss);
-    Node node;
-    iarchive(node);
-    return create_blob_i32(stoi(node.arg));
   }
 
   assert(false);
