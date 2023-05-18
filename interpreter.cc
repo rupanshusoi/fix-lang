@@ -168,7 +168,6 @@ Node make_node(const char *buf, size_t size)
   return node;
 }
 
-// Currently only adds two ints
 externref apply(Op op)
 {
   attach_blob_ro_mem_0(get_ro_table_0(3));
@@ -228,7 +227,8 @@ externref _fixpoint_apply(externref encode)
     {
       return apply(op);
     }
-  }
 
-  assert(false);
+    default:
+      assert(false);
+  }
 }
