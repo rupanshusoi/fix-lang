@@ -96,9 +96,10 @@ void test_parse(const vector<vector<Node>> parsed_lines)
 
 void make_table_1(Node node)
 {
-  grow_rw_table_1(3, get_ro_table_0(0));
+  grow_rw_table_1(4, get_ro_table_0(0));
   set_rw_table_1(0, get_ro_table_0(0));
   set_rw_table_1(1, get_ro_table_0(1));
+  set_rw_table_1(2, create_blob_i32(EVAL));
 
   stringstream ss;
   {
@@ -110,14 +111,15 @@ void make_table_1(Node node)
   grow_rw_mem_0_pages(str.size());
   program_memory_to_rw_0(0, (int32_t)str.c_str(), str.size());
 
-  set_rw_table_1(2, create_blob_rw_mem_0(str.size()));
+  set_rw_table_1(3, create_blob_rw_mem_0(str.size()));
 }
 
 void make_table_2(Node node)
 {
-  grow_rw_table_2(3, get_ro_table_0(0));
+  grow_rw_table_2(4, get_ro_table_0(0));
   set_rw_table_2(0, get_ro_table_0(0));
   set_rw_table_2(1, get_ro_table_0(1));
+  set_rw_table_2(2, create_blob_i32(EVAL));
 
   stringstream ss;
   {
@@ -129,7 +131,7 @@ void make_table_2(Node node)
   grow_rw_mem_0_pages(str.size());
   program_memory_to_rw_0(0, (int32_t)str.c_str(), str.size());
 
-  set_rw_table_2(2, create_blob_rw_mem_0(str.size()));
+  set_rw_table_2(3, create_blob_rw_mem_0(str.size()));
 }
 
 externref eval(Node ast)
@@ -138,17 +140,19 @@ externref eval(Node ast)
   set_rw_table_0(0, get_ro_table_0(0));
   set_rw_table_0(1, get_ro_table_0(1));
 
-  const char* op = "+";
-  size_t size = strlen(op);
-  grow_rw_mem_0_pages(size);
-  program_memory_to_rw_0(0, (int32_t)op, 1);
-  set_rw_table_0(2, create_blob_rw_mem_0(size));
+  // const char* op = "+";
+  // size_t size = strlen(op);
+  // grow_rw_mem_0_pages(size);
+  // program_memory_to_rw_0(0, (int32_t)op, 1);
+  // set_rw_table_0(2, create_blob_rw_mem_0(size));
+
+  set_rw_table_0(2, create_blob_i32(APPLY_ADD));
 
   make_table_1(ast[1]);
   make_table_2(ast[2]);
 
-  set_rw_table_0(3, create_thunk(create_tree_rw_table_1(3)));
-  set_rw_table_0(4, create_thunk(create_tree_rw_table_2(3)));
+  set_rw_table_0(3, create_thunk(create_tree_rw_table_1(4)));
+  set_rw_table_0(4, create_thunk(create_tree_rw_table_2(4)));
 
   return create_thunk(create_tree_rw_table_0(5));
 }
@@ -176,35 +180,42 @@ externref apply()
 __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
-
   attach_tree_ro_table_0(encode);
+  
   attach_blob_ro_mem_0(get_ro_table_0(2));
+  Op op = static_cast<Op>(get_i32_ro_mem_0(0));
+
+  attach_blob_ro_mem_0(get_ro_table_0(3));
   size_t size = byte_size_ro_mem_0();
   char *buf = (char *)malloc(size);
   ro_mem_0_to_program_memory((int32_t)buf, 0, size);
 
-  // Trim whitespace
-  if (buf[0] == '(')
+  switch (op)
   {
-    const string src(buf, size);
-    const auto tokens = lex(src);
+    case BEGIN:
+    {
+      const string src(buf, size);
+      const auto tokens = lex(src);
 
-    // Todo
-    const auto line = parse(tokens)[0];
+      // Todo
+      const auto line = parse(tokens)[0];
 
-    Node wrapper(line);
-    return eval(wrapper);
-  }
-  else if (buf[0] == '<')
-  {
-    Node node = make_node(buf, size);
-    if (!node.is_list)
-      return create_blob_i32(stoi(node.arg));
-    return eval(node.list);
-  }
-  else if (buf[0] == '+')
-  {
-    return apply();
+      Node wrapper(line);
+      return eval(wrapper);
+    }
+  
+    case EVAL:
+    {
+      Node node = make_node(buf, size);
+      if (!node.is_list)
+        return create_blob_i32(stoi(node.arg));
+      return eval(node.list);
+    }
+
+    case APPLY_ADD:
+    {
+      return apply();
+    }
   }
 
   assert(false);

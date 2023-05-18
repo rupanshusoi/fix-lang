@@ -19,6 +19,8 @@ __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "program_
 
 using namespace std;
 
+enum Op {BEGIN, EVAL, APPLY_ADD};
+
 struct Node
 {
   bool is_list;
