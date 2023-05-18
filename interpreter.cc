@@ -140,13 +140,14 @@ externref eval(Node ast)
   set_rw_table_0(0, get_ro_table_0(0));
   set_rw_table_0(1, get_ro_table_0(1));
 
-  // const char* op = "+";
-  // size_t size = strlen(op);
-  // grow_rw_mem_0_pages(size);
-  // program_memory_to_rw_0(0, (int32_t)op, 1);
-  // set_rw_table_0(2, create_blob_rw_mem_0(size));
-
-  set_rw_table_0(2, create_blob_i32(APPLY_ADD));
+  if (ast[0].arg == "+")
+    set_rw_table_0(2, create_blob_i32(APPLY_ADD));
+  else if (ast[0].arg == "-")
+    set_rw_table_0(2, create_blob_i32(APPLY_SUB));
+  else if (ast[0].arg == "*")
+    set_rw_table_0(2, create_blob_i32(APPLY_MUL));
+  else
+    assert(false);
 
   make_table_1(ast[1]);
   make_table_2(ast[2]);
@@ -168,13 +169,24 @@ Node make_node(const char *buf, size_t size)
 }
 
 // Currently only adds two ints
-externref apply()
+externref apply(Op op)
 {
   attach_blob_ro_mem_0(get_ro_table_0(3));
   int x = get_i32_ro_mem_0(0);
   attach_blob_ro_mem_0(get_ro_table_0(4));
   int y = get_i32_ro_mem_0(0);
-  return create_blob_i32(x + y);
+
+  switch (op)
+  {
+    case APPLY_ADD:
+      return create_blob_i32(x + y);
+    case APPLY_SUB:
+      return create_blob_i32(x - y);
+    case APPLY_MUL:
+      return create_blob_i32(x * y);
+    default:
+      assert(false);
+  }
 }
 
 __attribute__(( export_name("_fixpoint_apply")))
@@ -212,9 +224,9 @@ externref _fixpoint_apply(externref encode)
       return eval(node.list);
     }
 
-    case APPLY_ADD:
+    case APPLY_ADD: case APPLY_SUB: case APPLY_MUL:
     {
-      return apply();
+      return apply(op);
     }
   }
 
