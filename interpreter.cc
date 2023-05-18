@@ -99,16 +99,18 @@ void make_table_1(Node node)
   grow_rw_table_1(3, get_ro_table_0(0));
   set_rw_table_1(0, get_ro_table_0(0));
   set_rw_table_1(1, get_ro_table_0(1));
-  stringstream s;
+
+  stringstream ss;
   {
-    cereal::XMLOutputArchive oarchive(s);
+    cereal::XMLOutputArchive oarchive(ss);
     oarchive(node);
   }
-  string ss = s.str();
-  const char *ss_ptr = ss.c_str();
-  grow_rw_mem_0_pages(1000);
-  program_memory_to_rw_0(0, (int32_t)ss_ptr, strlen(ss_ptr));
-  set_rw_table_1(2, create_blob_rw_mem_0(ss.size()));
+  string str = ss.str();
+
+  grow_rw_mem_0_pages(str.size());
+  program_memory_to_rw_0(0, (int32_t)str.c_str(), str.size());
+
+  set_rw_table_1(2, create_blob_rw_mem_0(str.size()));
 }
 
 void make_table_2(Node node)
@@ -116,16 +118,18 @@ void make_table_2(Node node)
   grow_rw_table_2(3, get_ro_table_0(0));
   set_rw_table_2(0, get_ro_table_0(0));
   set_rw_table_2(1, get_ro_table_0(1));
-  stringstream s;
+
+  stringstream ss;
   {
-    cereal::XMLOutputArchive oarchive(s);
+    cereal::XMLOutputArchive oarchive(ss);
     oarchive(node);
   }
-  string ss = s.str();
-  const char *ss_ptr = ss.c_str();
-  grow_rw_mem_0_pages(1000);
-  program_memory_to_rw_0(0, (int32_t)ss_ptr, strlen(ss_ptr));
-  set_rw_table_2(2, create_blob_rw_mem_0(ss.size()));
+  string str = ss.str();
+
+  grow_rw_mem_0_pages(str.size());
+  program_memory_to_rw_0(0, (int32_t)str.c_str(), str.size());
+
+  set_rw_table_2(2, create_blob_rw_mem_0(str.size()));
 }
 
 externref eval(Node ast)
