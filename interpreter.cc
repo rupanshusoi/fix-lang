@@ -223,12 +223,7 @@ externref _fixpoint_apply(externref encode)
       return eval(node.list);
     }
 
-    case APPLY_ADD: case APPLY_SUB: case APPLY_MUL:
-    {
-      return apply(op);
-    }
-
     default:
-      assert(false);
+      apply(op);
   }
 }
