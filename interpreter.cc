@@ -224,6 +224,6 @@ externref _fixpoint_apply(externref encode)
     }
 
     default:
-      apply(op);
+      return apply(op);
   }
 }
