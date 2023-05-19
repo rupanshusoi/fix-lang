@@ -110,6 +110,14 @@ externref eval()
   {
     set_rw_table_1(2, create_blob_i32(APPLY_ADD));
   }
+  else if (op_str == "-")
+  {
+    set_rw_table_1(2, create_blob_i32(APPLY_SUB));
+  }
+  else if (op_str == "*")
+  {
+    set_rw_table_1(2, create_blob_i32(APPLY_MUL));
+  }
   else
     assert(false);
 
@@ -120,9 +128,7 @@ externref eval()
 
 externref apply(Op op)
 {
-  fio("77", 2);
   attach_blob_ro_mem_0(get_ro_table_0(3));
-  fio("78", 2);
   int x = get_i32_ro_mem_0(0);
   attach_blob_ro_mem_0(get_ro_table_0(4));
   int y = get_i32_ro_mem_0(0);
