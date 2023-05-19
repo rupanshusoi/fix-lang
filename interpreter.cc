@@ -94,83 +94,35 @@ void test_parse(const vector<vector<Node>> parsed_lines)
     _test_parse(line);
 }
 
-void make_table_1(Node node)
+externref eval()
 {
-  grow_rw_table_1(4, get_ro_table_0(0));
+  grow_rw_table_1(5, get_ro_table_0(0));
   set_rw_table_1(0, get_ro_table_0(0));
   set_rw_table_1(1, get_ro_table_0(1));
-  set_rw_table_1(2, create_blob_i32(EVAL));
 
-  stringstream ss;
+  attach_blob_ro_mem_0(get_ro_table_0(4));
+  size_t size = byte_size_ro_mem_0();
+  char *op = (char *)malloc(size);
+  ro_mem_0_to_program_memory((int32_t)op, 0, size);
+  string op_str(op, size);
+
+  if (op_str == "+")
   {
-    cereal::XMLOutputArchive oarchive(ss);
-    oarchive(node);
+    set_rw_table_1(2, create_blob_i32(APPLY_ADD));
   }
-  string str = ss.str();
-
-  grow_rw_mem_0_pages(str.size());
-  program_memory_to_rw_0(0, (int32_t)str.c_str(), str.size());
-
-  set_rw_table_1(3, create_blob_rw_mem_0(str.size()));
-}
-
-void make_table_2(Node node)
-{
-  grow_rw_table_2(4, get_ro_table_0(0));
-  set_rw_table_2(0, get_ro_table_0(0));
-  set_rw_table_2(1, get_ro_table_0(1));
-  set_rw_table_2(2, create_blob_i32(EVAL));
-
-  stringstream ss;
-  {
-    cereal::XMLOutputArchive oarchive(ss);
-    oarchive(node);
-  }
-  string str = ss.str();
-
-  grow_rw_mem_0_pages(str.size());
-  program_memory_to_rw_0(0, (int32_t)str.c_str(), str.size());
-
-  set_rw_table_2(3, create_blob_rw_mem_0(str.size()));
-}
-
-externref eval(Node ast)
-{
-  grow_rw_table_0(5, get_ro_table_0(0));
-  set_rw_table_0(0, get_ro_table_0(0));
-  set_rw_table_0(1, get_ro_table_0(1));
-
-  if (ast[0].arg == "+")
-    set_rw_table_0(2, create_blob_i32(APPLY_ADD));
-  else if (ast[0].arg == "-")
-    set_rw_table_0(2, create_blob_i32(APPLY_SUB));
-  else if (ast[0].arg == "*")
-    set_rw_table_0(2, create_blob_i32(APPLY_MUL));
   else
     assert(false);
 
-  make_table_1(ast[1]);
-  make_table_2(ast[2]);
-
-  set_rw_table_0(3, create_thunk(create_tree_rw_table_1(4)));
-  set_rw_table_0(4, create_thunk(create_tree_rw_table_2(4)));
-
-  return create_thunk(create_tree_rw_table_0(5));
-}
-
-Node make_node(const char *buf, size_t size)
-{
-  string s(buf, size);
-  stringstream ss(s);
-  cereal::XMLInputArchive iarchive(ss);
-  Node node;
-  iarchive(node);
-  return node;
+  set_rw_table_1(3, get_ro_table_0(5));
+  set_rw_table_1(4, get_ro_table_0(6));
+  return create_thunk(create_tree_rw_table_1(5));
 }
 
 externref apply(Op op)
 {
+  fio("77", 2);
   attach_blob_ro_mem_0(get_ro_table_0(3));
+  fio("78", 2);
   int x = get_i32_ro_mem_0(0);
   attach_blob_ro_mem_0(get_ro_table_0(4));
   int y = get_i32_ro_mem_0(0);
@@ -192,38 +144,43 @@ __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
   attach_tree_ro_table_0(encode);
-  
   attach_blob_ro_mem_0(get_ro_table_0(2));
   Op op = static_cast<Op>(get_i32_ro_mem_0(0));
-
-  attach_blob_ro_mem_0(get_ro_table_0(3));
-  size_t size = byte_size_ro_mem_0();
-  char *buf = (char *)malloc(size);
-  ro_mem_0_to_program_memory((int32_t)buf, 0, size);
 
   switch (op)
   {
     case BEGIN:
     {
-      const string src(buf, size);
-      const auto tokens = lex(src);
+      assert(false);
+      // const string src(buf, size);
+      // const auto tokens = lex(src);
 
-      // Todo
-      const auto line = parse(tokens)[0];
+      // // Todo
+      // const auto line = parse(tokens)[0];
 
-      Node wrapper(line);
-      return eval(wrapper);
+      // Node wrapper(line);
+      // return eval();
     }
   
     case EVAL:
     {
-      Node node = make_node(buf, size);
-      if (!node.is_list)
-        return create_blob_i32(stoi(node.arg));
-      return eval(node.list);
+      attach_blob_ro_mem_0(get_ro_table_0(3));
+      int is_list = get_i32_ro_mem_0(0);
+      if (!is_list)
+      {
+        attach_blob_ro_mem_0(get_ro_table_0(4));
+        size_t size = byte_size_ro_mem_0();
+        char *buf = (char *)malloc(size);
+        ro_mem_0_to_program_memory((int32_t)buf, 0, size);
+        string s(buf, size);
+        return create_blob_i32(stoi(s));
+      }
+      return eval();      
     }
 
     default:
+    {
       return apply(op);
+    }
   }
 }

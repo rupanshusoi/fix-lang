@@ -8,14 +8,18 @@ extern "C" {
 #include <utility>
 #include <iostream>
 #include <cassert>
-#include <cereal/archives/xml.hpp>
-#include <cereal/types/vector.hpp>
 
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
 __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "ro_mem_0_to_program_memory" ) ) );
 
+extern void ro_mem_1_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
+__attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "ro_mem_1_to_program_memory" ) ) );
+
 extern void program_memory_to_rw_0( int32_t rw_offset, int32_t program_offset, int32_t len )
 __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "program_memory_to_rw_0" ) ) );
+
+extern void program_memory_to_rw_1( int32_t rw_offset, int32_t program_offset, int32_t len )
+__attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "program_memory_to_rw_1" ) ) );
 
 using namespace std;
 
