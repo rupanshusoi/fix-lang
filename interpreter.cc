@@ -59,6 +59,8 @@ externref _fixpoint_apply(externref encode)
   attach_blob_ro_mem_0(get_ro_table_0(2));
   Op op = static_cast<Op>(get_i32_ro_mem_0(0));
 
+  assert(op != BEGIN);
+
   if (op == EVAL)
   {
     attach_blob_ro_mem_0(get_ro_table_0(3));
