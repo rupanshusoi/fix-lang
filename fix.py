@@ -58,10 +58,12 @@ def repl():
     parsed, _ = parse(lexed)
     fix_eval(parsed, global_env)
 
-def main():
+def main(inline):
   source = None
-  with open('code.fix', 'r') as file:
-    source = file.readlines()
+  if inline is None:
+    with open('code.fix', 'r') as file:
+      source = file.readlines()
+  source = [inline]
 
   lexed = list(map(lex, source))
   parsed = list(map(lambda tokens: parse(tokens)[0], lexed))
@@ -74,7 +76,8 @@ def main():
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('-i', '--interactive', default=False, action=argparse.BooleanOptionalAction)
+  parser.add_argument('-r', '--repl', default=False, action=argparse.BooleanOptionalAction)
+  parser.add_argument('-i', '--inline', type=str)
   args = parser.parse_args()
-  if args.interactive: repl()
-  else: main()
+  if args.repl: repl()
+  else: main(args.inline)
