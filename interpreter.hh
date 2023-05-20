@@ -2,11 +2,8 @@ extern "C" {
 #include "fixpoint_util.h"
 }
 
-#include <string>
-#include <vector>
-#include <map>
-#include <utility>
-#include <iostream>
+#include <string.h>
+#include <stdlib.h>
 #include <cassert>
 
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )

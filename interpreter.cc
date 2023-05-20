@@ -8,19 +8,19 @@ externref eval()
 
   attach_blob_ro_mem_0(get_ro_table_0(4));
   size_t size = byte_size_ro_mem_0();
-  char *op = (char *)malloc(size);
+  char *op = (char *)malloc(size + 1);
+  op[size] = 0;
   ro_mem_0_to_program_memory((int32_t)op, 0, size);
-  string op_str(op, size);
 
-  if (op_str == "+")
+  if (!strcmp(op, "+"))
   {
     set_rw_table_1(2, create_blob_i32(APPLY_ADD));
   }
-  else if (op_str == "-")
+  else if (!strcmp(op, "-"))
   {
     set_rw_table_1(2, create_blob_i32(APPLY_SUB));
   }
-  else if (op_str == "*")
+  else if (!strcmp(op, "*"))
   {
     set_rw_table_1(2, create_blob_i32(APPLY_MUL));
   }
@@ -69,10 +69,10 @@ externref _fixpoint_apply(externref encode)
     {
       attach_blob_ro_mem_0(get_ro_table_0(4));
       size_t size = byte_size_ro_mem_0();
-      char *buf = (char *)malloc(size);
+      char *buf = (char *)malloc(size + 1);
+      buf[size] = 0;
       ro_mem_0_to_program_memory((int32_t)buf, 0, size);
-      string s(buf, size);
-      return create_blob_i32(stoi(s));
+      return create_blob_i32(strtol(buf, nullptr, 10));
     }
     return eval();      
   }
