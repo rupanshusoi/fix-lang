@@ -31,12 +31,6 @@ def parse(lexed):
       S.append(lexed[i])
   assert False, 'ill-formed expression'
 
-def fix_eval_tail(S, env):
-  eval_str = ''
-  for s in S[1:]:
-    eval_str += ' ' + fix_eval(s, env)
-  return eval_str
-
 def fix_eval(S, env):
   if type(S) == list:
     if S[0] == '+' or S[0] == '-' or S[0] == '*':
@@ -59,11 +53,11 @@ def repl():
     fix_eval(parsed, global_env)
 
 def main(inline):
-  source = None
   if inline is None:
     with open('code.fix', 'r') as file:
       source = file.readlines()
-  source = [inline]
+  else:
+    source = [inline]
 
   lexed = list(map(lex, source))
   parsed = list(map(lambda tokens: parse(tokens)[0], lexed))
