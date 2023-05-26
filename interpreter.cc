@@ -27,8 +27,8 @@ externref eval()
   else
     assert(false);
 
-  set_rw_table_1(3, get_ro_table_0(5));
-  set_rw_table_1(4, get_ro_table_0(6));
+  set_rw_table_1(3, create_thunk(get_ro_table_0(5)));
+  set_rw_table_1(4, create_thunk(get_ro_table_0(6)));
   return create_thunk(create_tree_rw_table_1(5));
 }
 

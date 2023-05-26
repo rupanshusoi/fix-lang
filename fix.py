@@ -2,8 +2,8 @@ import os
 import subprocess as sp
 import argparse
 
-PROC_STR = 'thunk: tree:{} string:none file:build/test-fix.wasm uint32:1 uint32:1 string:{}'
-VAR_STR = 'thunk: tree:5 string:none file:build/test-fix.wasm uint32:1 uint32:0 string:{}'
+PROC_STR = 'tree:{} string:none file:build/test-fix.wasm uint32:1 uint32:1 string:{}'
+VAR_STR = 'tree:5 string:none file:build/test-fix.wasm uint32:1 uint32:0 string:{}'
 
 def call_fix(cmd):
   if os.uname()[1] == 'rootpi':
