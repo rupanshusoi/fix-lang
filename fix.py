@@ -2,13 +2,15 @@ import os
 import subprocess as sp
 import argparse
 
-PROC_STR = 'thunk: tree:7 string:none file:build/test-fix.wasm uint32:1 uint32:1 string:{} {} {}'
+PROC_STR = 'thunk: tree:{} string:none file:build/test-fix.wasm uint32:1 uint32:1 string:{}'
 VAR_STR = 'thunk: tree:5 string:none file:build/test-fix.wasm uint32:1 uint32:0 string:{}'
 
 def call_fix(cmd):
   if os.uname()[1] == 'rootpi':
     print(cmd)
   else:
+    print(cmd)
+    # exit()
     sp.run('cmake --build build --parallel 256'.split())
     sp.run(cmd.split())
 
@@ -33,12 +35,13 @@ def parse(lexed):
 
 def fix_eval(S, env):
   if type(S) == list:
-    if S[0] == '+' or S[0] == '-' or S[0] == '*':
-      eval_str = PROC_STR.format(S[0], fix_eval(S[1], env), fix_eval(S[2], env))
-      return eval_str
+    eval_str = PROC_STR.format(len(S) + 4, S[0])
+    for s in S[1:]:
+      eval_str += ' ' + fix_eval(s, env)
+    return eval_str
   elif type(S) == str:
     try:
-      return VAR_STR.format(int(S))
+      return VAR_STR.format(S)
     except:
       return fix_eval(env[S], env)
   else:

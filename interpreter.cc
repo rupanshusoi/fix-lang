@@ -61,21 +61,23 @@ externref _fixpoint_apply(externref encode)
 
   assert(op != BEGIN);
 
-  if (op == EVAL)
-  {
-    attach_blob_ro_mem_0(get_ro_table_0(3));
-    int is_list = get_i32_ro_mem_0(0);
-    if (!is_list)
-    {
-      attach_blob_ro_mem_0(get_ro_table_0(4));
-      size_t size = byte_size_ro_mem_0();
-      char *buf = (char *)malloc(size + 1);
-      buf[size] = 0;
-      ro_mem_0_to_program_memory((int32_t)buf, 0, size);
-      return create_blob_i32(strtol(buf, nullptr, 10));
-    }
-    return eval();      
-  }
+  if (op != EVAL) return apply(op);
+
+  attach_blob_ro_mem_0(get_ro_table_0(3));
+  int is_list = get_i32_ro_mem_0(0);
+
+  if (is_list) return eval();
+
+  attach_blob_ro_mem_0(get_ro_table_0(4));
+  size_t size = byte_size_ro_mem_0();
+  char *buf = (char *)malloc(size + 1);
+  buf[size] = 0;
+  ro_mem_0_to_program_memory((int32_t)buf, 0, size);
   
-  return apply(op);
+  if (isalpha(buf[0]))
+  {
+    // Fixme
+    return get_ro_table_0(5);
+  }
+  return create_blob_i32(strtol(buf, nullptr, 10));
 }
