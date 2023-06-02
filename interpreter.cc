@@ -2,30 +2,30 @@
 
 externref eval()
 {
-  grow_rw_table_1(5, gtro(0, 0));
-  set_rw_table_1(0, gtro(0, 0));
-  set_rw_table_1(1, gtro(0, 1));
-  set_rw_table_1(2, create_thunk(gtro(0, 4)));
-  set_rw_table_1(3, create_thunk(gtro(0, 5)));
-  set_rw_table_1(4, create_thunk(gtro(0, 6)));
-  return create_thunk(create_tree_rw_table_1(5));
+  grow(1, 5, gtro(0, 0));
+  strw(1, 0, gtro(0, 0));
+  strw(1, 1, gtro(0, 1));
+  strw(1, 2, thunk(gtro(0, 4)));
+  strw(1, 3, thunk(gtro(0, 5)));
+  strw(1, 4, thunk(gtro(0, 6)));
+  return thunk(treerw(1, 5));
 }
 
 externref apply(Op op)
 {
   attach_blob_ro_mem_0(gtro(0, 3));
-  int x = get_i32_ro_mem_0(0);
+  int x = gti32ro(0);
   attach_blob_ro_mem_0(gtro(0, 4));
-  int y = get_i32_ro_mem_0(0);
+  int y = gti32ro(0);
 
   switch (op)
   {
     case APPLY_ADD:
-      return create_blob_i32(x + y);
+      return i32(x + y);
     case APPLY_SUB:
-      return create_blob_i32(x - y);
+      return i32(x - y);
     case APPLY_MUL:
-      return create_blob_i32(x * y);
+      return i32(x * y);
     default:
       assert(false);
   }
@@ -36,14 +36,14 @@ externref _fixpoint_apply(externref encode)
 {
   attach_tree_ro_table_0(encode);
   attach_blob_ro_mem_0(gtro(0, 2));
-  Op op = static_cast<Op>(get_i32_ro_mem_0(0));
+  Op op = static_cast<Op>(gti32ro(0));
 
   assert(op != BEGIN);
 
   if (op != EVAL) return apply(op);
 
   attach_blob_ro_mem_0(gtro(0, 3));
-  int is_list = get_i32_ro_mem_0(0);
+  int is_list = gti32ro(0);
 
   if (is_list) return eval();
 
@@ -55,20 +55,20 @@ externref _fixpoint_apply(externref encode)
   
   if (!strcmp(buf, "+"))
   {
-    return create_blob_i32(APPLY_ADD);
+    return i32(APPLY_ADD);
   }
   else if (!strcmp(buf, "-"))
   {
-    return create_blob_i32(APPLY_SUB);
+    return i32(APPLY_SUB);
   }
   else if (!strcmp(buf, "*"))
   {
-    return create_blob_i32(APPLY_MUL);
+    return i32(APPLY_MUL);
   }
   else if (isalpha(buf[0]))
   {
     // Fixme
     return gtro(0, 5);
   }
-  return create_blob_i32(strtol(buf, nullptr, 10));
+  return i32(strtol(buf, nullptr, 10));
 }
