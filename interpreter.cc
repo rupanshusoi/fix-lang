@@ -13,9 +13,9 @@ externref eval()
 
 externref apply(Op op)
 {
-  attach_blob_ro_mem_0(gtro(0, 3));
+  atbrom(0, gtro(0, 3));
   int x = gti32ro(0);
-  attach_blob_ro_mem_0(gtro(0, 4));
+  atbrom(0, gtro(0, 4));
   int y = gti32ro(0);
 
   switch (op)
@@ -34,20 +34,20 @@ externref apply(Op op)
 __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
-  attach_tree_ro_table_0(encode);
-  attach_blob_ro_mem_0(gtro(0, 2));
+  attrot(0, encode);
+  atbrom(0, gtro(0, 2));
   Op op = static_cast<Op>(gti32ro(0));
 
   assert(op != BEGIN);
 
   if (op != EVAL) return apply(op);
 
-  attach_blob_ro_mem_0(gtro(0, 3));
+  atbrom(0, gtro(0, 3));
   int is_list = gti32ro(0);
 
   if (is_list) return eval();
 
-  attach_blob_ro_mem_0(gtro(0, 4));
+  atbrom(0, gtro(0, 4));
   size_t size = byte_size_ro_mem_0();
   char *buf = (char *)malloc(size + 1);
   buf[size] = 0;

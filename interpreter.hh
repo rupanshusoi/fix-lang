@@ -14,7 +14,8 @@ extern "C" {
 #define stro(TIDX, IDX, VAL) set_ro_table_##TIDX(IDX, VAL)
 #define strw(TIDX, IDX, VAL) set_rw_table_##TIDX(IDX, VAL)
 
-#define atro(MIDX, VAL) attach_blob_ro_mem_##MIDX(VAL)
+#define atbrom(MIDX, VAL) attach_blob_ro_mem_##MIDX(VAL)
+#define attrot(TIDX, VAL) attach_tree_ro_table_##TIDX(VAL)
 
 #define grow(TIDX, SIZE, VAL) grow_rw_table_##TIDX(SIZE, VAL)
 
