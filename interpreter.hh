@@ -7,6 +7,11 @@ extern "C" {
 #include <cassert>
 #include <ctype.h>
 
+#define gtro(TIDX, IDX) get_ro_table_##TIDX(IDX)
+#define gtrw(TIDX, IDX) get_rw_table_##TIDX(IDX)
+#define stro(TIDX, IDX) set_ro_table_##TIDX(IDX)
+#define strw(TIDX, IDX) set_rw_table_##TIDX(IDX)
+
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
 __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "ro_mem_0_to_program_memory" ) ) );
 
