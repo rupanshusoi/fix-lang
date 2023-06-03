@@ -26,15 +26,15 @@ externref apply()
 
 externref eval_list()
 {
-  grow(1, 7, getrot(0, 0));
-  set(1, 0, getrot(0, 0));
-  set(1, 1, getrot(0, 1));
-  set(1, 2, i32(0));
-  set(1, 3, i32(0));
-  set(1, 4, thunk(getrot(0, 4)));
-  set(1, 5, thunk(getrot(0, 5)));
-  set(1, 6, thunk(getrot(0, 6)));
-  return thunk(treerw(1, 7));
+  grow(0, 7, getrot(0, 0));
+  set(0, 0, getrot(0, 0));
+  set(0, 1, getrot(0, 1));
+  set(0, 2, i32(0));
+  set(0, 3, i32(0));
+  set(0, 4, thunk(getrot(0, 4)));
+  set(0, 5, thunk(getrot(0, 5)));
+  set(0, 6, thunk(getrot(0, 6)));
+  return thunk(treerw(0, 7));
 }
 
 __attribute__(( export_name("_fixpoint_apply")))
