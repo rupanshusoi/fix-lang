@@ -1,18 +1,5 @@
 #include "interpreter.hh"
 
-externref eval()
-{
-  grow(1, 7, getrot(0, 0));
-  set(1, 0, getrot(0, 0));
-  set(1, 1, getrot(0, 1));
-  set(1, 2, i32(0));
-  set(1, 3, i32(0));
-  set(1, 4, thunk(getrot(0, 4)));
-  set(1, 5, thunk(getrot(0, 5)));
-  set(1, 6, thunk(getrot(0, 6)));
-  return thunk(treerw(1, 7));
-}
-
 externref apply()
 {
   atbrom(0, getrotarg(0, 0));
@@ -37,6 +24,19 @@ externref apply()
   }
 }
 
+externref eval_list()
+{
+  grow(1, 7, getrot(0, 0));
+  set(1, 0, getrot(0, 0));
+  set(1, 1, getrot(0, 1));
+  set(1, 2, i32(0));
+  set(1, 3, i32(0));
+  set(1, 4, thunk(getrot(0, 4)));
+  set(1, 5, thunk(getrot(0, 5)));
+  set(1, 6, thunk(getrot(0, 6)));
+  return thunk(treerw(1, 7));
+}
+
 __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
@@ -47,7 +47,7 @@ externref _fixpoint_apply(externref encode)
 
   atbrom(0, getrot(0, IS_LIST));
   int is_list = geti32rom(0);
-  if (is_list) return eval();
+  if (is_list) return eval_list();
 
   atbrom(0, getrotarg(0, 0));
   size_t size = byte_size_ro_mem_0();
