@@ -7,12 +7,11 @@ extern "C" {
 #include <cassert>
 #include <ctype.h>
 
-#define gtro(TIDX, IDX) get_ro_table_##TIDX(IDX)
-#define gtrw(TIDX, IDX) get_rw_table_##TIDX(IDX)
-#define gti32ro(MIDX) get_i32_ro_mem_##MIDX(0)
+#define getrot(TIDX, IDX) get_ro_table_##TIDX(IDX)
+#define geti32rom(MIDX) get_i32_ro_mem_##MIDX(0)
+#define getrotarg(TIDX, IDX) get_ro_table_##TIDX(IDX + 4)
 
-#define stro(TIDX, IDX, VAL) set_ro_table_##TIDX(IDX, VAL)
-#define strw(TIDX, IDX, VAL) set_rw_table_##TIDX(IDX, VAL)
+#define set(TIDX, IDX, VAL) set_rw_table_##TIDX(IDX, VAL)
 
 #define atbrom(MIDX, VAL) attach_blob_ro_mem_##MIDX(VAL)
 #define attrot(TIDX, VAL) attach_tree_ro_table_##TIDX(VAL)
@@ -30,9 +29,16 @@ __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "ro_mem_0
 extern void program_memory_to_rw_0( int32_t rw_offset, int32_t program_offset, int32_t len )
 __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "program_memory_to_rw_0" ) ) );
 
+void from_ro_mem_0(int32_t program_offset, int32_t len)
+{
+  ro_mem_0_to_program_memory(program_offset, 0, len);
+}
+
 using namespace std;
 
-enum Op {BEGIN, EVAL, APPLY_ADD, APPLY_SUB, APPLY_MUL};
+enum Op {APPLY_ADD, APPLY_SUB, APPLY_MUL};
+
+enum Idx {LIMITS, PROGRAM, IS_EVAL, IS_LIST};
 
 void fio(const char *txt, size_t size)
 {
