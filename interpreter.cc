@@ -45,18 +45,18 @@ void eval_helper(int idx)
 
 externref eval_list()
 {
-  grow(0, 8, getrot(0, 0));
+  int size = size_ro_table_0();
+  grow(0, size, getrot(0, 0));
   set(0, 0, getrot(0, 0));
   set(0, 1, getrot(0, 1));
   set(0, 2, i32(0));
   set(0, 3, i32(0));
   set(0, 4, i32(0));
 
-  eval_helper(0);
-  eval_helper(1);
-  eval_helper(2);
+  for (int i = 0; i < size - 5; i++)
+    eval_helper(i);
 
-  return thunk(treerw(0, 8));
+  return thunk(treerw(0, size));
 }
 
 __attribute__(( export_name("_fixpoint_apply")))

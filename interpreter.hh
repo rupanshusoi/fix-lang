@@ -54,3 +54,9 @@ void fio(const char *txt, size_t size)
   fixpoint_unsafe_io(txt, size);
 }
 
+void fio(int x)
+{
+  string tmp = "int: " + to_string(x);
+  fio(tmp.c_str(), tmp.size());
+}
+
