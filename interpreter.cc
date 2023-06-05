@@ -27,15 +27,20 @@ externref apply()
 
 void eval_helper(int idx)
 {
-  grow(1, 6, getrot(0, 0));
+  attrot(2, getrotarg(0, idx));
+  int size = size_ro_table_2();
+
+  grow(1, size, getrot(0, 0));
   set(1, 0, getrot(0, 0));
   set(1, 1, getrot(0, 1));
   set(1, 2, i32(1));
-  set(1, 3, i32(0));
+  set(1, 3, getrot(2, IS_LIST));
   set(1, ENV, getrot(0, ENV));
-  attrot(2, getrotarg(0, idx));
-  setarg(1, 0, getrotarg(2, 0));
-  setarg(0, idx, thunk(treerw(1, 6)));
+
+  for (int i = 0; i < size - 5; i++)
+    setarg(1, i, getrotarg(2, i));
+
+  setarg(0, idx, thunk(treerw(1, size)));
 }
 
 externref eval_list()

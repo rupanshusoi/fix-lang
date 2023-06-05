@@ -25,6 +25,11 @@ extern "C" {
 
 #define i32(VAL) create_blob_i32(VAL)
 
+#define DEBUG {\
+  string line = "dbg: " + to_string(__LINE__); \
+  fio(line.c_str(), line.size()); \
+}
+
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
 __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "ro_mem_0_to_program_memory" ) ) );
 
@@ -41,6 +46,8 @@ using namespace std;
 enum Op {APPLY_ADD, APPLY_SUB, APPLY_MUL};
 
 enum Idx {LIMITS, PROGRAM, IS_EVAL, IS_LIST, ENV};
+
+enum Type {TREE, THUNK, BLOB};
 
 void fio(const char *txt, size_t size)
 {
