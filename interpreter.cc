@@ -25,6 +25,19 @@ externref apply()
   }
 }
 
+void eval_helper(int idx)
+{
+  grow(1, 6, getrot(0, 0));
+  set(1, 0, getrot(0, 0));
+  set(1, 1, getrot(0, 1));
+  set(1, 2, i32(1));
+  set(1, 3, i32(0));
+  set(1, ENV, getrot(0, ENV));
+  attrot(2, getrotarg(0, idx));
+  setarg(1, 0, getrotarg(2, 0));
+  setarg(0, idx, thunk(treerw(1, 6)));
+}
+
 externref eval_list()
 {
   grow(0, 8, getrot(0, 0));
@@ -34,35 +47,9 @@ externref eval_list()
   set(0, 3, i32(0));
   set(0, 4, i32(0));
 
-  grow(1, 6, getrot(0, 0));
-  set(1, 0, getrot(0, 0));
-  set(1, 1, getrot(0, 1));
-  set(1, 2, i32(1));
-  set(1, 3, i32(0));
-  set(1, ENV, getrot(0, ENV));
-  attrot(2, getrotarg(0, 0));
-  setarg(1, 0, getrotarg(2, 0));
-  setarg(0, 0, thunk(treerw(1, 6)));
-
-  grow(1, 6, getrot(0, 0));
-  set(1, 0, getrot(0, 0));
-  set(1, 1, getrot(0, 1));
-  set(1, 2, i32(1));
-  set(1, 3, i32(0));
-  set(1, ENV, getrot(0, ENV));
-  attrot(2, getrotarg(0, 1));
-  setarg(1, 0, getrotarg(2, 0));
-  setarg(0, 1, thunk(treerw(1, 6)));
-
-  grow(1, 6, getrot(0, 0));
-  set(1, 0, getrot(0, 0));
-  set(1, 1, getrot(0, 1));
-  set(1, 2, i32(1));
-  set(1, 3, i32(0));
-  set(1, ENV, getrot(0, ENV));
-  attrot(2, getrotarg(0, 2));
-  setarg(1, 0, getrotarg(2, 0));
-  setarg(0, 2, thunk(treerw(1, 6)));
+  eval_helper(0);
+  eval_helper(1);
+  eval_helper(2);
 
   return thunk(treerw(0, 8));
 }
