@@ -1,5 +1,6 @@
 #include "interpreter.hh"
 
+// Extend env, call eval
 externref apply()
 {
   atbrom(0, getrotarg(0, 0));
@@ -24,17 +25,19 @@ externref apply()
   }
 }
 
+// Copy parent's env to children's
 externref eval_list()
 {
-  grow(0, 7, getrot(0, 0));
+  grow(0, 8, getrot(0, 0));
   set(0, 0, getrot(0, 0));
   set(0, 1, getrot(0, 1));
   set(0, 2, i32(0));
   set(0, 3, i32(0));
-  set(0, 4, thunk(getrot(0, 4)));
+  set(0, 4, i32(0));
   set(0, 5, thunk(getrot(0, 5)));
   set(0, 6, thunk(getrot(0, 6)));
-  return thunk(treerw(0, 7));
+  set(0, 7, thunk(getrot(0, 7)));
+  return thunk(treerw(0, 8));
 }
 
 __attribute__(( export_name("_fixpoint_apply")))

@@ -2,8 +2,8 @@ import os
 import subprocess as sp
 import argparse
 
-PROC_STR = 'tree:{} string:none file:build/test-fix.wasm uint32:1 uint32:1'
-VAR_STR = 'tree:5 string:none file:build/test-fix.wasm uint32:1 uint32:0 string:{}'
+PROC_STR = 'tree:{} string:none file:build/test-fix.wasm uint32:1 uint32:1 uint32:0'
+VAR_STR = 'tree:6 string:none file:build/test-fix.wasm uint32:1 uint32:0 uint32:0 string:{}'
 
 def call_fix(cmd):
   if os.uname()[1] == 'rootpi':
@@ -35,7 +35,7 @@ def parse(lexed):
 
 def fix_eval(S, env):
   if type(S) == list:
-    eval_str = PROC_STR.format(len(S) + 4)
+    eval_str = PROC_STR.format(len(S) + 5)
     for s in S:
       eval_str += ' ' + fix_eval(s, env)
     return eval_str

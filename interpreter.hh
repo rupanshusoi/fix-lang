@@ -6,10 +6,11 @@ extern "C" {
 #include <stdlib.h>
 #include <cassert>
 #include <ctype.h>
+#include <string>
 
 #define getrot(TIDX, IDX) get_ro_table_##TIDX(IDX)
 #define geti32rom(MIDX) get_i32_ro_mem_##MIDX(0)
-#define getrotarg(TIDX, IDX) get_ro_table_##TIDX(IDX + 4)
+#define getrotarg(TIDX, IDX) get_ro_table_##TIDX(IDX + 5)
 
 #define set(TIDX, IDX, VAL) set_rw_table_##TIDX(IDX, VAL)
 
@@ -38,7 +39,7 @@ using namespace std;
 
 enum Op {APPLY_ADD, APPLY_SUB, APPLY_MUL};
 
-enum Idx {LIMITS, PROGRAM, IS_EVAL, IS_LIST};
+enum Idx {LIMITS, PROGRAM, IS_EVAL, IS_LIST, ENV};
 
 void fio(const char *txt, size_t size)
 {
