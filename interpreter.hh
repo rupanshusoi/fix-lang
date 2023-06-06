@@ -54,6 +54,7 @@ using namespace std;
 enum Op {APPLY_ADD, APPLY_SUB, APPLY_MUL};
 
 enum Idx {LIMITS, PROGRAM, IS_EVAL, IS_LIST, ENV};
+#define PRELUDE 5 // Number of elements in Idx
 
 enum Type {TREE, THUNK, BLOB};
 
