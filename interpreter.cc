@@ -5,7 +5,8 @@ externref apply_lambda()
   atbrom(0, getrotarg(0, 1));
   int val = geti32rom(0);
 
-  attrot(1, getrotarg(0, 0));
+  attrot(2, getrotarg(0, 0));
+  attrot(1, getrotarg(2, 2));
   int size = size_ro_table_1();
   grow(1, size, getrot(0, 0));
   set(1, 0, getrot(1, 0));
@@ -141,8 +142,7 @@ externref _fixpoint_apply(externref encode)
     // Check for special forms
     if (!strcmp(buf, "lambda"))
     {
-      // Return the raw expr
-      return getrotarg(0, 2);
+      return encode;
     }
     else
       return eval_list();

@@ -10,10 +10,10 @@ extern "C" {
 
 #define getrot(TIDX, IDX) get_ro_table_##TIDX(IDX)
 #define geti32rom(MIDX) get_i32_ro_mem_##MIDX(0)
-#define getrotarg(TIDX, IDX) get_ro_table_##TIDX(IDX + 5)
+#define getrotarg(TIDX, IDX) get_ro_table_##TIDX(IDX + PRELUDE)
 
 #define set(TIDX, IDX, VAL) set_rw_table_##TIDX(IDX, VAL)
-#define setarg(TIDX, IDX, VAL) set_rw_table_##TIDX(IDX + 5, VAL)
+#define setarg(TIDX, IDX, VAL) set_rw_table_##TIDX(IDX + PRELUDE, VAL)
 
 #define atbrom(MIDX, VAL) attach_blob_ro_mem_##MIDX(VAL)
 #define attrot(TIDX, VAL) attach_tree_ro_table_##TIDX(VAL)
