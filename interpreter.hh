@@ -30,7 +30,13 @@ extern "C" {
   fio(line.c_str()); \
 }
 
-#define fassert(X) DEBUG assert(X)
+#define fassert(X) {\
+  if (!(X)) {\
+  string line = "assert failed at line: " + to_string(__LINE__); \
+  fio(line.c_str()); \
+  assert(false); \
+  }\
+}
 
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
 __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "ro_mem_0_to_program_memory" ) ) );

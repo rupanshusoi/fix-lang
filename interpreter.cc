@@ -1,6 +1,5 @@
 #include "interpreter.hh"
 
-// Extend env, call eval
 externref apply_lambda()
 {
   atbrom(0, getrotarg(0, 1));
@@ -19,7 +18,6 @@ externref apply_lambda()
   for (int i = 0; i < size - 5; i++)
     setarg(1, i, getrotarg(1, i));
 
-  // return treerw(1, size);
   return thunk(treerw(1, size));
 }
 
@@ -47,7 +45,7 @@ externref apply()
     case APPLY_MUL:
       return i32(x * y);
     default:
-      assert(false);
+      fassert(false);
   }
 }
 
@@ -102,7 +100,7 @@ externref _fixpoint_apply(externref encode)
     if (type != BLOB)
       return eval_list();
 
-    assert(type == BLOB);
+    fassert(type == BLOB);
     atbrom(0, getrotarg(1, 0));
     size_t size = byte_size_ro_mem_0();
     char *buf = (char *)malloc(size + 1);
