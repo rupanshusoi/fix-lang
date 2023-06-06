@@ -27,8 +27,10 @@ extern "C" {
 
 #define DEBUG {\
   string line = "dbg: " + to_string(__LINE__); \
-  fio(line.c_str(), line.size()); \
+  fio(line.c_str()); \
 }
+
+#define fassert(X) DEBUG assert(X)
 
 extern void ro_mem_0_to_program_memory( int32_t program_offset, int32_t ro_offset, int32_t len )
 __attribute( ( import_module( "wasi_snapshot_preview1" ), import_name( "ro_mem_0_to_program_memory" ) ) );
@@ -49,14 +51,14 @@ enum Idx {LIMITS, PROGRAM, IS_EVAL, IS_LIST, ENV};
 
 enum Type {TREE, THUNK, BLOB};
 
-void fio(const char *txt, size_t size)
+void fio(const char *txt)
 {
-  fixpoint_unsafe_io(txt, size);
+  fixpoint_unsafe_io(txt, strlen(txt));
 }
 
 void fio(int x)
 {
   string tmp = "int: " + to_string(x);
-  fio(tmp.c_str(), tmp.size());
+  fio(tmp.c_str());
 }
 
