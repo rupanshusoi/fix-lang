@@ -6,38 +6,35 @@ void bind()
   //   The 0th sub-tree has ids
   //   The 1st sub-tree has corresponding values
 
-  // First, get the formal parameters out of the lambda expr and use them to
-  // create the first sub-tree
   attrot(2, getrotarg(0, 0));
   attrot(2, getrotarg(2, 1));
-  int nargs = size_ro_table_2();
 
-  attrot(3, getrotarg(2, 0));
+  int nargs = size_ro_table_2() - PRELUDE;
 
-  grow(2, 2, getrot(0, 0));
-  set(2, 0, getrotarg(3, 0));
-  attrot(3, getrotarg(2, 1));
-  set(2, 1, getrotarg(3, 0));
+  // Get the formal parameters out of the lambda expr and use them to
+  // create the first sub-tree
+  grow(2, nargs, getrot(0, 0));
+  for (int i = 0; i < nargs; i++)
+  {
+    attrot(3, getrotarg(2, i));
+    set(2, i, getrotarg(3, 0));
+  }
+  externref first = treerw(2, nargs);
 
-  externref first = treerw(2, 2);
-
-  // Second, get the values since we are applying a lambda
-  atbrom(0, getrotarg(0, 1));
-  int x = geti32rom(0);
-  atbrom(0, getrotarg(0, 2));
-  int y = geti32rom(0);
-
-  grow(2, 2, getrot(0, 0));
-  set(2, 0, i32(x)); 
-  set(2, 1, i32(y)); 
-  externref second = treerw(2, 2);
+  // Get the value for each formal parameter (since we are applying a lambda)
+  grow(2, nargs, getrot(0, 0));
+  for (int i = 0; i < nargs; i++)
+  {
+    set(2, i, getrotarg(0, i + 1));
+  }
+  externref second = treerw(2, nargs);
 
   // Combine both sub-trees into one tree
   grow(2, 2, getrot(0, 0));
   set(2, 0, first);
   set(2, 1, second);
   
-  // And stick that tree into the ENV slot
+  // ..and stick this tree into the ENV slot
   set(1, 4, treerw(2, 2));
 }
 
@@ -57,7 +54,6 @@ externref apply_lambda()
   for (int i = 0; i < size - PRELUDE; i++)
     setarg(1, i, getrotarg(1, i));
 
-  // return treerw(1, size);
   return thunk(treerw(1, size));
 }
 
