@@ -19,8 +19,6 @@ add_link_options(-L${WASIX_DIR}/lib -lwasix -L${WASI_SDK}/lib -L${WASI_SDK}/lib/
 
 project(fixtmp)
 
-include_directories(cereal/include)
-
 add_link_options(-nostdlib -Wl,--no-entry -Wl,--allow-undefined
                  $ENV{HOME}/wasm-toolchain/sysroot/lib/wasm32-wasi/libc++.a
                  $ENV{HOME}/wasm-toolchain/sysroot/lib/wasm32-wasi/libc++abi.a
