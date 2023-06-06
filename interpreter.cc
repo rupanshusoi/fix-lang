@@ -1,12 +1,48 @@
 #include "interpreter.hh"
 
-externref apply_lambda()
+void bind()
 {
+  // Lookup uses a tree consisting of exactly two sub-trees:
+  //   The 0th sub-tree has ids
+  //   The 1st sub-tree has corresponding values
+
+  // First, get the formal parameters out of the lambda expr and use them to
+  // create the first sub-tree
+  attrot(2, getrotarg(0, 0));
+  attrot(2, getrotarg(2, 1));
+  int nargs = size_ro_table_2();
+
+  attrot(3, getrotarg(2, 0));
+
+  grow(2, 2, getrot(0, 0));
+  set(2, 0, getrotarg(3, 0));
+  attrot(3, getrotarg(2, 1));
+  set(2, 1, getrotarg(3, 0));
+
+  externref first = treerw(2, 2);
+
+  // Second, get the values since we are applying a lambda
   atbrom(0, getrotarg(0, 1));
   int x = geti32rom(0);
   atbrom(0, getrotarg(0, 2));
   int y = geti32rom(0);
 
+  grow(2, 2, getrot(0, 0));
+  set(2, 0, i32(x)); 
+  set(2, 1, i32(y)); 
+  externref second = treerw(2, 2);
+
+  // Combine both sub-trees into one tree
+  grow(2, 2, getrot(0, 0));
+  set(2, 0, first);
+  set(2, 1, second);
+  
+  // And stick that tree into the ENV slot
+  set(1, 4, treerw(2, 2));
+}
+
+externref apply_lambda()
+{
   attrot(2, getrotarg(0, 0));
   attrot(1, getrotarg(2, 2));
   int size = size_ro_table_1();
@@ -16,35 +52,7 @@ externref apply_lambda()
   set(1, 2, getrot(1, 2));
   set(1, 3, getrot(1, 3));
 
-  // Lookup is a tree that has two sub-trees:
-  //   First contains the identifiers
-  //   Second contains the values
-
-  // First half:
-  grow(2, 2, getrot(0, 0));
-  string xstr = "x";
-  grow_rw_mem_0_pages(2);
-  program_memory_to_rw_0(0, (int32_t)xstr.c_str(), xstr.size());
-  set(2, 0, create_blob_rw_mem_0(xstr.size()));
-  string ystr = "y";
-  grow_rw_mem_0_pages(2);
-  program_memory_to_rw_0(0, (int32_t)ystr.c_str(), ystr.size());
-  set(2, 1, create_blob_rw_mem_0(xstr.size()));
-
-  externref first = treerw(2, 2);
-
-  // Second half:
-  grow(2, 2, getrot(0, 0));
-  set(2, 0, i32(x)); 
-  set(2, 1, i32(y)); 
-  externref second = treerw(2, 2);
-
-  // Combine
-  grow(2, 2, getrot(0, 0));
-  set(2, 0, first);
-  set(2, 1, second);
-  
-  set(1, 4, treerw(2, 2));
+  bind();
 
   for (int i = 0; i < size - PRELUDE; i++)
     setarg(1, i, getrotarg(1, i));
@@ -123,7 +131,7 @@ externref lookup(const char* id)
 {
   attrot(1, getrot(0, ENV));
 
-  // First iterate through the first subtree to find id
+  // Iterate the first sub-tree to look for the id
   attrot(2, getrot(1, 0));
   int size = size_ro_table_2();
   int idx = -1;
@@ -133,13 +141,17 @@ externref lookup(const char* id)
     size_t size = byte_size_ro_mem_0();
     char *buf = (char *)malloc(size + 1);
     buf[size] = 0;
-    from_ro_mem_0((int32_t)buf, size);
+    from_ro_mem_0((int)buf, size);
 
-    if (!strcmp(id, buf)) { idx = i; break; }
+    if (!strcmp(id, buf))
+    {
+      idx = i;
+      break;
+    }
   }
   fassert(idx != -1);
 
-  // Now get the corresponding entry from the second subtree
+  // Return the corresponding entry from the second sub-tree
   attrot(2, getrot(1, 1));
   return getrot(2, idx);
 }
