@@ -7,27 +7,52 @@ void bind()
   //   The 1st sub-tree has corresponding values
 
   attrot(2, getrotarg(0, 0));
-  attrot(2, getrotarg(2, 1));
 
+  // Get the size of the old env
+  attrot(3, getrot(2, ENV));
+  attrot(3, getrot(3, 0));
+  int old_env_size = size_ro_table_3();
+
+  // Prepare to read the formal parameters
+  attrot(2, getrotarg(2, 1));
   int nargs = size_ro_table_2() - PRELUDE;
+
+  // Allocate space for first sub-tree
+  grow(2, nargs + old_env_size, getrot(0, 0));
+
+  // Copy the old env into the first sub-tree
+  for (int i = 0; i < old_env_size; i++)
+  {
+    set(2, i, getrot(3, i));
+  }  
 
   // Get the formal parameters out of the lambda expr and use them to
   // create the first sub-tree
-  grow(2, nargs, getrot(0, 0));
   for (int i = 0; i < nargs; i++)
   {
     attrot(3, getrotarg(2, i));
-    set(2, i, getrotarg(3, 0));
+    set(2, i + old_env_size, getrotarg(3, 0));
   }
-  externref first = treerw(2, nargs);
+  externref first = treerw(2, nargs + old_env_size);
+
+  // Allocate space for the second sub-tree
+  grow(2, nargs + old_env_size, getrot(0, 0));
+
+  // Copy the old env into the second sub-tree
+  attrot(3, getrotarg(0, 0));
+  attrot(3, getrot(3, ENV));
+  attrot(3, getrot(3, 1));
+  for (int i = 0; i < old_env_size; i++)
+  {
+    set(2, i, getrot(3, i));
+  }
 
   // Get the value for each formal parameter (since we are applying a lambda)
-  grow(2, nargs, getrot(0, 0));
   for (int i = 0; i < nargs; i++)
   {
-    set(2, i, getrotarg(0, i + 1));
+    set(2, i + old_env_size, getrotarg(0, i + 1));
   }
-  externref second = treerw(2, nargs);
+  externref second = treerw(2, nargs + old_env_size);
 
   // Combine both sub-trees into one tree
   grow(2, 2, getrot(0, 0));
@@ -38,7 +63,7 @@ void bind()
   set(1, 4, treerw(2, 2));
 }
 
-externref apply_lambda()
+externref apply_lambda(externref encode)
 {
   attrot(2, getrotarg(0, 0));
   attrot(1, getrotarg(2, 2));
@@ -55,6 +80,16 @@ externref apply_lambda()
     setarg(1, i, getrotarg(1, i));
 
   return thunk(treerw(1, size));
+}
+
+externref apply_wasm()
+{
+  grow(1, 4, getrot(0, 0));
+  set(1, 0, getrot(0, 0));
+  set(1, 1, getrotarg(0, 0));
+  set(1, 2, getrotarg(0, 1));
+  set(1, 3, getrotarg(0, 2));
+  return thunk(treerw(1, 4));
 }
 
 externref apply_primitive()
@@ -81,11 +116,18 @@ externref apply_primitive()
   }
 }
 
-externref apply()
+externref apply(externref encode)
 {
   int type = value_type(getrotarg(0, 0));
   if (type == TREE)
-    return apply_lambda();
+  {
+    return apply_lambda(encode);
+  }
+  fassert(type == BLOB);
+  atbrom(0, getrotarg(0, 0));
+  size_t size = byte_size_ro_mem_0();
+  if (size > sizeof(Idx))
+    return apply_wasm();
   return apply_primitive();
 }
 
@@ -115,6 +157,7 @@ externref eval_list()
   set(0, 1, getrot(0, 1));
   set(0, 2, i32(0));
   set(0, 3, i32(0));
+  // Setting this to getrot(0, 4) somehow breaks this code?
   set(0, 4, i32(0));
 
   for (int i = 0; i < size - PRELUDE; i++)
@@ -185,7 +228,7 @@ externref _fixpoint_apply(externref encode)
   attrot(0, encode);
   atbrom(0, getrot(0, IS_EVAL));
   int is_eval = geti32rom(0);
-  if (!is_eval) return apply();
+  if (!is_eval) return apply(encode);
 
   atbrom(0, getrot(0, IS_LIST));
   int is_list = geti32rom(0);
@@ -202,6 +245,7 @@ externref _fixpoint_apply(externref encode)
     char *buf = (char *)malloc(size + 1);
     buf[size] = 0;
     from_ro_mem_0((int32_t)buf, size); 
+
 
     // Check for special forms
     if (!strcmp(buf, "lambda"))

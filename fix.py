@@ -52,6 +52,15 @@ def repl():
     parsed, _ = parse(lexed)
     fix_eval(parsed, global_env)
 
+def add_blobs(eval_str):
+  wasm_blobs = ['addblob.wasm', 'subblob.wasm']  
+  location = '/home/rsoi/fix/build/testing/wasm-examples/'
+  rstr = 'tree:2 tree:{} '.format(len(wasm_blobs))
+  rstr += ' '.join(list(map(lambda x: 'string:' + x, wasm_blobs)))
+  rstr += ' tree:{} '.format(len(wasm_blobs))
+  rstr += ' '.join(list(map(lambda x: 'file:' + location + x, wasm_blobs)))
+  return eval_str.replace('uint32:0', rstr, 1)
+
 def main(inline):
   if inline is None:
     with open('code.fix', 'r') as file:
@@ -59,6 +68,7 @@ def main(inline):
   else:
     source = [inline]
 
+  source = list(map(lambda x: x.replace('\n', ' ').replace('\t', ' '), source))
   lexed = list(map(lex, source))
   parsed = list(map(lambda tokens: parse(tokens)[0], lexed))
   parsed = parsed[0]
@@ -66,6 +76,8 @@ def main(inline):
   global_env = {}
   eval_str = fix_eval(parsed, global_env)
   eval_str = "/home/rsoi/fix/build/src/tester/stateless-tester " + eval_str
+  # eval_str = eval_str.replace("uint32:0", "tree:2 tree:1 string:addblob.wasm tree:1 file:/home/rsoi/fix/build/testing/wasm-examples/addblob.wasm", 1)
+  eval_str = add_blobs(eval_str)
   call_fix(eval_str)
 
 if __name__ == '__main__':
