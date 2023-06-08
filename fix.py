@@ -64,19 +64,17 @@ def add_blobs(eval_str):
 def main(inline):
   if inline is None:
     with open('code.fix', 'r') as file:
-      source = file.readlines()
+      source = file.read()
   else:
-    source = [inline]
+    source = inline
 
-  source = list(map(lambda x: x.replace('\n', ' ').replace('\t', ' '), source))
-  lexed = list(map(lex, source))
-  parsed = list(map(lambda tokens: parse(tokens)[0], lexed))
-  parsed = parsed[0]
-  
+  source = source.replace('\n', ' ').replace('\t', ' ')
+  tokens = lex(source)
+  parsed, _ = parse(tokens)
+
   global_env = {}
   eval_str = fix_eval(parsed, global_env)
   eval_str = "/home/rsoi/fix/build/src/tester/stateless-tester " + eval_str
-  # eval_str = eval_str.replace("uint32:0", "tree:2 tree:1 string:addblob.wasm tree:1 file:/home/rsoi/fix/build/testing/wasm-examples/addblob.wasm", 1)
   eval_str = add_blobs(eval_str)
   call_fix(eval_str)
 
