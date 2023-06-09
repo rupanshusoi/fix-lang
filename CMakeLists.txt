@@ -86,3 +86,25 @@ add_custom_command(
 )
 
 add_custom_target(test-fix ALL DEPENDS test-fix.wasm)
+
+macro (compileblob file)
+    add_executable("${file}" "blobs/${file}.cc")
+    add_custom_command(
+      OUTPUT "${file}.wasm"
+      DEPENDS blobs/${file}.cc
+              ${file}
+              ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+      COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
+              --debug-names
+              --enable-multi-memory
+              --enable-exceptions
+              ${file}
+              ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+              -m wasi_command
+              -n fixpoint_storage
+              -o "${file}.wasm"
+    )
+    add_custom_target(${file}-fix ALL DEPENDS ${file}.wasm)
+endmacro (compileblob)
+
+compileblob(if)
