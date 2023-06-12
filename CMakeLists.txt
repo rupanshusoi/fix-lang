@@ -108,3 +108,6 @@ macro (compileblob file)
 endmacro (compileblob)
 
 compileblob(if)
+compileblob(add)
+compileblob(sub)
+compileblob(mul)

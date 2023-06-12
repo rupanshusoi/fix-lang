@@ -41,8 +41,6 @@ void from_ro_mem_0(int32_t program_offset, int32_t len)
 
 using namespace std;
 
-enum Op {APPLY_ADD, APPLY_SUB, APPLY_MUL};
-
 enum Idx {LIMITS, PROGRAM, IS_EVAL, IS_LIST, ENV};
 #define PRELUDE 5 // Number of elements in Idx
 

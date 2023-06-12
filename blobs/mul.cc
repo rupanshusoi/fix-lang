@@ -6,13 +6,12 @@ externref _fixpoint_apply(externref encode)
   constexpr int tz = 0;
 
   attrot(tz, encode);
+
   atbromz(getrot(tz, 2));
+  int lhs = geti32romz();
 
-  int predicate = geti32romz();
+  atbromz(getrot(tz, 3));
+  int rhs = geti32romz();
 
-  if (predicate)
-  {
-    return getrot(0, 3); 
-  }
-  return getrot(0, 4);
+  return i32(lhs * rhs);
 }

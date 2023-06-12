@@ -67,8 +67,10 @@ externref apply_lambda(externref encode)
 {
   attrot(2, getrotarg(0, 0));
   attrot(1, getrotarg(2, 2));
+
   int size = size_ro_table_1();
   grow(1, size, getrot(0, 0));
+
   set(1, 0, getrot(1, 0));
   set(1, 1, getrot(1, 1));
   set(1, 2, getrot(1, 2));
@@ -92,30 +94,6 @@ externref apply_wasm()
   return thunk(treerw(1, nargs + 1));
 }
 
-externref apply_primitive()
-{
-  atbromz(getrotarg(0, 0));
-  Op op = static_cast<Op>(geti32rom(0));
-
-  atbromz(getrotarg(0, 1));
-  int x = geti32rom(0);
-
-  atbromz(getrotarg(0, 2));
-  int y = geti32rom(0);
-
-  switch (op)
-  {
-    case APPLY_ADD:
-      return i32(x + y);
-    case APPLY_SUB:
-      return i32(x - y);
-    case APPLY_MUL:
-      return i32(x * y);
-    default:
-      fassert(false);
-  }
-}
-
 externref apply(externref encode)
 {
   int type = value_type(getrotarg(0, 0));
@@ -125,10 +103,7 @@ externref apply(externref encode)
   }
   fassert(type == BLOB);
   atbromz(getrotarg(0, 0));
-  size_t size = byte_size_ro_mem_0();
-  if (size > sizeof(Idx))
-    return apply_wasm();
-  return apply_primitive();
+  return apply_wasm();
 }
 
 void eval_helper(int idx)
@@ -203,19 +178,7 @@ externref eval_single()
   buf[size] = 0;
   from_ro_mem_0((int32_t)buf, size);
   
-  if (!strcmp(buf, "+"))
-  {
-    return i32(APPLY_ADD);
-  }
-  else if (!strcmp(buf, "-"))
-  {
-    return i32(APPLY_SUB);
-  }
-  else if (!strcmp(buf, "*"))
-  {
-    return i32(APPLY_MUL);
-  }
-  else if (isalpha(buf[0]))
+  if (isalpha(buf[0]))
   {
     return lookup(buf);
   }
