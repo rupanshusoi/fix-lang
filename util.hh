@@ -28,6 +28,10 @@ constexpr auto geti32rom(int midx) {
   return (fs[midx])(0);
 }
 
+constexpr auto geti32romz(int midx) {
+  return get_i32_ro_mem_0(0);
+}
+
 constexpr auto getrotarg(int tidx, int idx) {
   constexpr std::array fs = {get_ro_table_0, get_ro_table_1, get_ro_table_2,
                              get_ro_table_3};
