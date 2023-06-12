@@ -44,17 +44,9 @@ def fix_eval(S, env):
   else:
     assert False
 
-def repl():
-  global_env = {}
-  while True:
-    source = input('fix> ')
-    lexed = lex(source)
-    parsed, _ = parse(lexed)
-    fix_eval(parsed, global_env)
-
 def add_blobs(eval_str):
-  wasm_blobs = ['addblob.wasm', 'subblob.wasm']  
-  location = '/home/rsoi/fix/build/testing/wasm-examples/'
+  location = '/home/rsoi/fix-lang/build/'
+  wasm_blobs = [x for x in os.listdir(location) if x.endswith('.wasm')]
   rstr = 'tree:2 tree:{} '.format(len(wasm_blobs))
   rstr += ' '.join(list(map(lambda x: 'string:' + x, wasm_blobs)))
   rstr += ' tree:{} '.format(len(wasm_blobs))
@@ -80,8 +72,6 @@ def main(inline):
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  parser.add_argument('-r', '--repl', default=False, action=argparse.BooleanOptionalAction)
   parser.add_argument('-i', '--inline', type=str)
   args = parser.parse_args()
-  if args.repl: repl()
-  else: main(args.inline)
+  main(args.inline)
