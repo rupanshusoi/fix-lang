@@ -218,8 +218,7 @@ externref eval_single()
   {
     return lookup(buf);
   }
-  int tmp = strtol(buf, nullptr, 10);
-  return i32(tmp);
+  return i32(strtol(buf, nullptr, 10));
 }
 
 __attribute__(( export_name("_fixpoint_apply")))
@@ -247,11 +246,8 @@ externref _fixpoint_apply(externref encode)
     from_ro_mem_0((int32_t)buf, size); 
 
     if (!strcmp(buf, "lambda"))
-    {
       return encode;
-    }
-    else
-      return eval_list();
+    return eval_list();
   }
 
   return eval_single();
