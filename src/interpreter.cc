@@ -84,12 +84,12 @@ externref apply_lambda(externref encode)
 
 externref apply_wasm()
 {
-  grow(1, 4, getrot(0, 0));
+  int nargs = size_ro_table_0() - PRELUDE;
+  grow(1, nargs + 1, getrot(0, 0));
   set(1, 0, getrot(0, 0));
-  set(1, 1, getrotarg(0, 0));
-  set(1, 2, getrotarg(0, 1));
-  set(1, 3, getrotarg(0, 2));
-  return thunk(treerw(1, 4));
+  for (int i = 0; i < nargs; i++)
+    set(1, i + 1, getrotarg(0, i));
+  return thunk(treerw(1, nargs + 1));
 }
 
 externref apply_primitive()
