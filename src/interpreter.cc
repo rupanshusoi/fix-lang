@@ -2,7 +2,6 @@
 
 void bind()
 {
-  fio("begin bind");
   // Lookup uses a tree consisting of exactly two sub-trees:
   //   The 0th sub-tree has ids
   //   The 1st sub-tree has corresponding values
@@ -13,7 +12,6 @@ void bind()
   attrot(3, getrot(2, ENV));
   attrot(3, getrot(3, 0));
   int old_env_size = size_ro_table_3();
-  fio("old_env_size: " + to_string(old_env_size));
 
   // Prepare to read the formal parameters
   attrot(2, getrotarg(2, 1));
@@ -51,8 +49,6 @@ void bind()
 
   // Get the value for each formal parameter (since we are applying a lambda)
   int actuals = size_ro_table_0() - PRELUDE - 1;
-  fio("actuals: " + to_string(actuals));
-  fio("nargs: " + to_string(nargs));
   fassert(actuals == nargs);
 
   for (int i = 0; i < nargs; i++)
@@ -72,7 +68,6 @@ void bind()
 
 externref apply_lambda(externref encode)
 {
-  fio("begin apply_lambda");
   attrot(2, getrotarg(0, 0));
   attrot(1, getrotarg(2, 2));
 
@@ -89,7 +84,6 @@ externref apply_lambda(externref encode)
   for (int i = 0; i < size - PRELUDE; i++)
     setarg(1, i, getrotarg(1, i));
 
-  fio("end apply_lambda");
   return thunk(treerw(1, size));
 }
 
@@ -105,13 +99,11 @@ externref apply_wasm()
 
 externref apply(externref encode)
 {
-  fio("begin apply");
   int type = value_type(getrotarg(0, 0));
   if (type == TREE)
   {
     return apply_lambda(encode);
   }
-  fio(type);
   fassert(type == BLOB);
   return apply_wasm();
 }
@@ -120,10 +112,9 @@ externref copy_env(externref env)
 {
   if (value_type(env) != TREE)
   {
-    fio("don't copy env blobs");
     return env;
   }
-  fio("value_type: " + to_string(value_type(env)));
+
   attrot(3, env);
 
   attrot(3, getrot(3, 0));
@@ -131,23 +122,18 @@ externref copy_env(externref env)
 
   grow(2, size, getrot(0, 0));
 
-  DEBUG
   for (int i = 0; i < size; i++)
   {
     set(2, i, getrot(3, i));
   }
-  DEBUG
 
   externref first = treerw(2, size);
 
   attrot(3, env);
-  DEBUG
   attrot(3, getrot(3, 1));
-  DEBUG
 
   grow(2, size, getrot(0, 0));
 
-  DEBUG
   for (int i = 0; i < size; i++)
   {
     set(2, i, getrot(3, i));
@@ -166,7 +152,6 @@ externref copy_env(externref env)
 // Copy env to each arg
 void eval_helper(int idx)
 {
-  fio("begin eval_helper " + to_string(idx));
   attrot(2, getrotarg(0, idx));
   int size = size_ro_table_2();
 
@@ -174,39 +159,28 @@ void eval_helper(int idx)
   set(1, 0, getrot(0, 0));
   set(1, 1, getrot(0, 1));
   set(1, 2, i32(1));
-  set(1, 3, getrot(2, IS_LIST));
-  set(1, ENV, copy_env(getrot(0, ENV)));
+  set(1, 3, getrot(2, 3));
+  set(1, 4, copy_env(getrot(0, 4)));
 
   for (int i = 0; i < size - PRELUDE; i++)
     setarg(1, i, getrotarg(2, i));
 
   setarg(0, idx, thunk(treerw(1, size)));
-  // setarg(0, idx, treerw(1, size));
 }
 
 externref eval_list()
 {
-  fio("begin eval_list");
   int size = size_ro_table_0();
   grow(0, size, getrot(0, 0));
   set(0, 0, getrot(0, 0));
   set(0, 1, getrot(0, 1));
   set(0, 2, i32(0));
   set(0, 3, i32(0));
+  set(0, 4, copy_env(getrot(0, 4)));
 
-  // Setting this to getrot(0, 4) somehow breaks this code?
-  // set(0, 4, i32(999));
-  // set(0, 4, getrot(0, 4));
-  // set(0, 4, getrot(0, ENV));
-  set(0, 4, copy_env(getrot(0, ENV)));
-  // fassert(value_type(getrot(0, ENV)) == TREE);
-
-
-  fio("size: " + to_string(size));
   for (int i = 0; i < size - PRELUDE; i++)
     eval_helper(i);
 
-  // return treerw(0, size);
   return thunk(treerw(0, size));
 }
 
@@ -220,10 +194,7 @@ externref lookup(const char* id)
   int idx = -1;
   for (int i = 0; i < size; i++)
   {
-    DEBUG
-    fio(value_type(getrot(2, i)));
     atbromz(getrot(2, i));
-    DEBUG
     size_t size = byte_size_ro_mem_0();
     char *buf = (char *)malloc(size + 1);
     buf[size] = 0;
@@ -239,13 +210,11 @@ externref lookup(const char* id)
 
   // Return the corresponding entry from the second sub-tree
   attrot(2, getrot(1, 1));
-  fio("end lookup: " + string(id));
   return getrot(2, idx);
 }
 
 externref eval_single()
 {
-  fio("begin eval_single");
   atbromz(getrotarg(0, 0));
   size_t size = byte_size_ro_mem_0();
   char *buf = (char *)malloc(size + 1);
@@ -254,18 +223,15 @@ externref eval_single()
   
   if (isalpha(buf[0]))
   {
-    fio("lookup: " + string(buf));
     return lookup(buf);
   }
   int tmp = strtol(buf, nullptr, 10);
-  fio("make_int: " + to_string(tmp));
   return i32(tmp);
 }
 
 __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
-  fio("begin main");
   attrot(0, encode);
   atbromz(getrot(0, IS_EVAL));
   int is_eval = geti32rom(0);
@@ -287,8 +253,6 @@ externref _fixpoint_apply(externref encode)
     buf[size] = 0;
     from_ro_mem_0((int32_t)buf, size); 
 
-
-    // Check for special forms
     if (!strcmp(buf, "lambda"))
     {
       return encode;
