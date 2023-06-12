@@ -33,11 +33,11 @@ def parse(lexed):
       S.append(lexed[i])
   assert False, 'ill-formed expression'
 
-def fix_eval(S, env):
+def fix_eval(S):
   if type(S) == list:
     eval_str = PROC_STR.format(len(S) + 5)
     for s in S:
-      eval_str += ' ' + fix_eval(s, env)
+      eval_str += ' ' + fix_eval(s)
     return eval_str
   elif type(S) == str:
     return VAR_STR.format(S)
@@ -64,8 +64,7 @@ def main(inline):
   tokens = lex(source)
   parsed, _ = parse(tokens)
 
-  global_env = {}
-  eval_str = fix_eval(parsed, global_env)
+  eval_str = fix_eval(parsed)
   eval_str = "/home/rsoi/fix/build/src/tester/stateless-tester " + eval_str
   eval_str = add_blobs(eval_str)
   call_fix(eval_str)
