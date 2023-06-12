@@ -58,6 +58,10 @@ constexpr auto atbrom(int midx, externref ref) {
   return (fs[midx])(ref);
 }
 
+constexpr auto atbromz(externref ref) {
+  return attach_blob_ro_mem_0(ref);
+}
+
 constexpr auto attrot(int tidx, externref ref) {
   constexpr std::array fs = {attach_tree_ro_table_0, attach_tree_ro_table_1,
                              attach_tree_ro_table_2, attach_tree_ro_table_3};

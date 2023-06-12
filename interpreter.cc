@@ -94,13 +94,13 @@ externref apply_wasm()
 
 externref apply_primitive()
 {
-  atbrom(0, getrotarg(0, 0));
+  atbromz(getrotarg(0, 0));
   Op op = static_cast<Op>(geti32rom(0));
 
-  atbrom(0, getrotarg(0, 1));
+  atbromz(getrotarg(0, 1));
   int x = geti32rom(0);
 
-  atbrom(0, getrotarg(0, 2));
+  atbromz(getrotarg(0, 2));
   int y = geti32rom(0);
 
   switch (op)
@@ -124,7 +124,7 @@ externref apply(externref encode)
     return apply_lambda(encode);
   }
   fassert(type == BLOB);
-  atbrom(0, getrotarg(0, 0));
+  atbromz(getrotarg(0, 0));
   size_t size = byte_size_ro_mem_0();
   if (size > sizeof(Idx))
     return apply_wasm();
@@ -176,7 +176,7 @@ externref lookup(const char* id)
   int idx = -1;
   for (int i = 0; i < size; i++)
   {
-    atbrom(0, getrot(2, i));
+    atbromz(getrot(2, i));
     size_t size = byte_size_ro_mem_0();
     char *buf = (char *)malloc(size + 1);
     buf[size] = 0;
@@ -197,7 +197,7 @@ externref lookup(const char* id)
 
 externref eval_single()
 {
-  atbrom(0, getrotarg(0, 0));
+  atbromz(getrotarg(0, 0));
   size_t size = byte_size_ro_mem_0();
   char *buf = (char *)malloc(size + 1);
   buf[size] = 0;
@@ -226,11 +226,11 @@ __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
   attrot(0, encode);
-  atbrom(0, getrot(0, IS_EVAL));
+  atbromz(getrot(0, IS_EVAL));
   int is_eval = geti32rom(0);
   if (!is_eval) return apply(encode);
 
-  atbrom(0, getrot(0, IS_LIST));
+  atbromz(getrot(0, IS_LIST));
   int is_list = geti32rom(0);
   if (is_list)
   {
@@ -240,7 +240,7 @@ externref _fixpoint_apply(externref encode)
       return eval_list();
 
     fassert(type == BLOB);
-    atbrom(0, getrotarg(1, 0));
+    atbromz(getrotarg(1, 0));
     size_t size = byte_size_ro_mem_0();
     char *buf = (char *)malloc(size + 1);
     buf[size] = 0;
