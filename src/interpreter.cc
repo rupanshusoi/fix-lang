@@ -187,11 +187,7 @@ externref lookup(const char* id)
   int idx = -1;
   for (int i = 0; i < size; i++)
   {
-    atbromz(getrot(2, i));
-    size_t size = byte_size_ro_mem_0();
-    char *buf = (char *)malloc(size + 1);
-    buf[size] = 0;
-    from_ro_mem_0((int)buf, size);
+    const char* buf = blob2cstr(getrot(2, i));
 
     if (!strcmp(id, buf))
     {
@@ -208,11 +204,7 @@ externref lookup(const char* id)
 
 externref eval_single()
 {
-  atbromz(getrotarg(0, 0));
-  size_t size = byte_size_ro_mem_0();
-  char *buf = (char *)malloc(size + 1);
-  buf[size] = 0;
-  from_ro_mem_0((int32_t)buf, size);
+  const char* buf = blob2cstr(getrotarg(0, 0));
   
   if (isalpha(buf[0]))
   {
@@ -238,12 +230,7 @@ externref _fixpoint_apply(externref encode)
     if (type != BLOB)
       return eval_list();
 
-    fassert(type == BLOB);
-    atbromz(getrotarg(1, 0));
-    size_t size = byte_size_ro_mem_0();
-    char *buf = (char *)malloc(size + 1);
-    buf[size] = 0;
-    from_ro_mem_0((int32_t)buf, size); 
+    const char* buf = blob2cstr(getrotarg(1, 0));
 
     if (!strcmp(buf, "lambda"))
       return encode;

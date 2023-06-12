@@ -62,3 +62,14 @@ void fio(int x)
   fio(tmp.c_str());
 }
 
+// Todo: don't leak
+const char* blob2cstr(externref blob)
+{
+  fassert(value_type(blob) == BLOB);
+  atbromz(blob);
+  size_t size = byte_size_ro_mem_0();
+  char *buf = (char *)malloc(size + 1);
+  buf[size] = 0;
+  from_ro_mem_0((int) buf, size); 
+  return buf;
+}
