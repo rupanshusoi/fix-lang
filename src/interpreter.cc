@@ -108,24 +108,20 @@ externref apply(externref encode)
   return apply_wasm();
 }
 
+// Do not clobber rw tables that are in use in eval_helper!
 externref copy_env(externref env)
 {
   if (value_type(env) != TREE)
-  {
     return env;
-  }
 
   attrot(3, env);
-
   attrot(3, getrot(3, 0));
   int size = size_ro_table_3();
 
   grow(2, size, getrot(0, 0));
 
   for (int i = 0; i < size; i++)
-  {
     set(2, i, getrot(3, i));
-  }
 
   externref first = treerw(2, size);
 
@@ -135,14 +131,11 @@ externref copy_env(externref env)
   grow(2, size, getrot(0, 0));
 
   for (int i = 0; i < size; i++)
-  {
     set(2, i, getrot(3, i));
-  }
 
   externref second = treerw(2, size);
 
   grow(2, 2, getrot(0, 0));
-
   set(2, 0, first);
   set(2, 1, second);
 
