@@ -1,15 +1,16 @@
-extern "C" {
-#include "../fixpoint_util.h"
-}
-
-#include "../macros.hh"
+#include "../util.hh"
 
 __attribute__(( export_name("_fixpoint_apply")))
 externref _fixpoint_apply(externref encode)
 {
-  attrot(0, encode);
-  atbrom(0, getrot(0, 2));
-  int predicate = geti32rom(0);
+  constexpr int tz = 0;
+  constexpr int mz = 0;
+
+  attrot(tz, encode);
+  atbrom(mz, getrot(tz, 2));
+
+  int predicate = geti32rom(mz);
+
   if (predicate)
   {
     return getrot(0, 3); 
