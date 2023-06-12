@@ -25,18 +25,18 @@ add_link_options(-nostdlib -Wl,--no-entry -Wl,--allow-undefined
                  $ENV{HOME}/wasm-toolchain/sysroot/lib/wasm32-wasi/libc.a
                  $ENV{HOME}/wasm-toolchain/sysroot/lib/clang/16.0.0/lib/wasi/libclang_rt.builtins-wasm32.a)
 
-add_library(stub-obj OBJECT "ignore.cc")
-add_executable(test "interpreter.cc")
+add_library(stub-obj OBJECT "includes/ignore.cc")
+add_executable(test "src/interpreter.cc")
 target_link_libraries(test stub-obj)
 
 add_custom_command(
   OUTPUT "linked_with_asm_no_apply.wasm"
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/linked_with_asm_flatware.wasm
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/includes/linked_with_asm_flatware.wasm
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/export-audit/export-audit
           --enable-multi-memory
           --enable-exceptions
           -r _fixpoint_apply
-          ${CMAKE_CURRENT_SOURCE_DIR}/linked_with_asm_flatware.wasm
+          ${CMAKE_CURRENT_SOURCE_DIR}/includes/linked_with_asm_flatware.wasm
           linked_with_asm_no_apply.wasm
 )
 
@@ -55,8 +55,8 @@ add_custom_command(
   OUTPUT "test-fix-no-storage.wasm"
   DEPENDS linked_with_asm_no_memory.wasm
           test
-          interpreter.cc
-          interpreter.hh
+          src/interpreter.cc
+          src/interpreter.hh
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
           --debug-names
           --enable-multi-memory
@@ -72,14 +72,14 @@ add_custom_command(
   OUTPUT "test-fix.wasm"
   DEPENDS test-fix-no-storage.wasm
           test
-          interpreter.cc
-          ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+          src/interpreter.cc
+          ${CMAKE_CURRENT_SOURCE_DIR}/includes/fixpoint_storage.wasm
   COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
           --debug-names
           --enable-multi-memory
           --enable-exceptions
           test-fix-no-storage.wasm
-          ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+          ${CMAKE_CURRENT_SOURCE_DIR}/includes/fixpoint_storage.wasm
           -m wasi_command
           -n fixpoint_storage
           -o "test-fix.wasm"
@@ -93,13 +93,13 @@ macro (compileblob file)
       OUTPUT "${file}.wasm"
       DEPENDS blobs/${file}.cc
               ${file}
-              ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+              ${CMAKE_CURRENT_SOURCE_DIR}/includes/fixpoint_storage.wasm
       COMMAND $ENV{HOME}/wasm-toolchain/wasm-tools/build/src/module-combiner/wasmlink
               --debug-names
               --enable-multi-memory
               --enable-exceptions
               ${file}
-              ${CMAKE_CURRENT_SOURCE_DIR}/fixpoint_storage.wasm
+              ${CMAKE_CURRENT_SOURCE_DIR}/includes/fixpoint_storage.wasm
               -m wasi_command
               -n fixpoint_storage
               -o "${file}.wasm"

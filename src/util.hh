@@ -1,7 +1,7 @@
 #ifndef INTERPRETER_HH
 
 extern "C" {
-#include "fixpoint_util.h"
+#include "../includes/fixpoint_util.h"
 }
 
 #endif

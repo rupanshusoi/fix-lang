@@ -1,5 +1,5 @@
 extern "C" {
-#include "fixpoint_util.h"
+#include "../includes/fixpoint_util.h"
 }
 
 #include <string.h>
