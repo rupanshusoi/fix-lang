@@ -10,7 +10,7 @@ extern "C" {
 
 #define INTERPRETER_HH
 
-// This must always precede the previous pound-define
+// This include must always succeed the previous pound-define
 #include "util.hh"
 
 #define DEBUG                                                                  \
