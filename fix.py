@@ -2,17 +2,14 @@ import os
 import subprocess as sp
 import argparse
 
-PROC_STR = 'tree:{} string:none file:build/test-fix.wasm uint32:1 uint32:1 uint32:0'
-VAR_STR = 'tree:6 string:none file:build/test-fix.wasm uint32:1 uint32:0 uint32:0 string:{}'
+BOOT_STR = 'thunk: tree:3 string:none name:BAIZUnvLN502KN1e-55uw-AAAAAAAAAAkHH44D-KGwQ '
+PROC_STR = 'tree:{} string:none ' + BOOT_STR + 'file:build/test-fix.wasm uint32:1 uint32:1 uint32:0'
+VAR_STR = 'tree:6 string:none ' + BOOT_STR + ' file:build/test-fix.wasm uint32:1 uint32:0 uint32:0 string:{}'
+BLOB_LOC = '/home/rsoi/fix-lang/build/'
 
 def call_fix(cmd):
-  if os.uname()[1] == 'rootpi':
-    print(cmd)
-  else:
-    print(cmd)
-    # exit()
-    sp.run('cmake --build build --parallel 256'.split())
-    sp.run(cmd.split())
+  sp.run('cmake --build build --parallel 256'.split())
+  sp.run(cmd.split())
 
 def lex(line):
   return line.replace('(', ' ( ').replace(')', ' ) ').split()
@@ -45,12 +42,11 @@ def fix_eval(S):
     assert False
 
 def add_blobs(eval_str):
-  location = '/home/rsoi/fix-lang/build/'
-  wasm_blobs = [x for x in os.listdir(location) if x.endswith('.wasm')]
+  wasm_blobs = [x for x in os.listdir(BLOB_LOC) if x.endswith('.wasm')]
   rstr = 'tree:2 tree:{} '.format(len(wasm_blobs))
   rstr += ' '.join(list(map(lambda x: 'string:' + x, wasm_blobs)))
   rstr += ' tree:{} '.format(len(wasm_blobs))
-  rstr += ' '.join(list(map(lambda x: 'file:' + location + x, wasm_blobs)))
+  rstr += ' '.join(list(map(lambda x: BOOT_STR + ' file:' + BLOB_LOC + x, wasm_blobs)))
   return eval_str.replace('uint32:0', rstr, 1)
 
 def main(inline):
