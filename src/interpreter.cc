@@ -108,40 +108,6 @@ externref apply(externref encode)
   return apply_wasm();
 }
 
-// Do not clobber rw tables that are in use in eval_helper!
-externref copy_env(externref env)
-{
-  if (value_type(env) != TREE)
-    return env;
-
-  attrot(3, env);
-  attrot(3, getrot(3, 0));
-  int size = size_ro_table_3();
-
-  grow(2, size, getrot(0, 0));
-
-  for (int i = 0; i < size; i++)
-    set(2, i, getrot(3, i));
-
-  externref first = treerw(2, size);
-
-  attrot(3, env);
-  attrot(3, getrot(3, 1));
-
-  grow(2, size, getrot(0, 0));
-
-  for (int i = 0; i < size; i++)
-    set(2, i, getrot(3, i));
-
-  externref second = treerw(2, size);
-
-  grow(2, 2, getrot(0, 0));
-  set(2, 0, first);
-  set(2, 1, second);
-
-  return treerw(2, 2);
-}
-
 // Copy env to each arg
 void eval_helper(int idx)
 {
@@ -153,7 +119,7 @@ void eval_helper(int idx)
   set(1, 1, getrot(0, 1));
   set(1, 2, i32(1));
   set(1, 3, getrot(2, 3));
-  set(1, 4, copy_env(getrot(0, 4)));
+  set(1, 4, getrot(0, 4));
 
   for (int i = 0; i < size - PRELUDE; i++)
     setarg(1, i, getrotarg(2, i));
@@ -169,7 +135,7 @@ externref eval_list()
   set(0, 1, getrot(0, 1));
   set(0, 2, i32(0));
   set(0, 3, i32(0));
-  set(0, 4, copy_env(getrot(0, 4)));
+  set(0, 4, getrot(0, 4));
 
   for (int i = 0; i < size - PRELUDE; i++)
     eval_helper(i);
@@ -234,6 +200,12 @@ externref _fixpoint_apply(externref encode)
 
     if (!strcmp(buf, "lambda"))
       return encode;
+    else if (!strcmp(buf, "printcc!"))
+    {
+      attrot(1, getrotarg(0, 1));
+      fio(blob2cstr(getrotarg(1, 0)));
+      return thunk(getrotarg(0, 2));;
+    }
     return eval_list();
   }
 
