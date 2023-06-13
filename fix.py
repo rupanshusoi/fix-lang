@@ -2,10 +2,11 @@ import os
 import subprocess as sp
 import argparse
 
+BLOB_LOC = '/home/rsoi/fix-lang/build/'
+STATELESS_TESTER_LOC = '/home/rsoi/fix/build/src/tester/stateless-tester '
 BOOT_STR = 'thunk: tree:3 string:none name:BAIZUnvLN502KN1e-55uw-AAAAAAAAAAkHH44D-KGwQ '
 PROC_STR = 'tree:{} string:none ' + BOOT_STR + 'file:build/test-fix.wasm uint32:1 uint32:1 uint32:0'
 VAR_STR = 'tree:6 string:none ' + BOOT_STR + ' file:build/test-fix.wasm uint32:1 uint32:0 uint32:0 string:{}'
-BLOB_LOC = '/home/rsoi/fix-lang/build/'
 
 def call_fix(cmd):
   sp.run('cmake --build build --parallel 256'.split())
@@ -49,24 +50,29 @@ def add_blobs(eval_str):
   rstr += ' '.join(list(map(lambda x: BOOT_STR + ' file:' + BLOB_LOC + x, wasm_blobs)))
   return eval_str.replace('uint32:0', rstr, 1)
 
-def main(inline):
-  if inline is None:
-    with open('code.fix', 'r') as file:
-      source = file.read()
+def main(inline, file):
+  assert (inline or file), 'please specify either -i or -f, but not both'
+  assert not (inline and file), 'please specify either -i or -f, but not both'
+
+  if file:
+    with open(file, 'r') as f:
+      source = f.read()
   else:
     source = inline
 
   source = source.replace('\n', ' ').replace('\t', ' ')
   tokens = lex(source)
-  parsed, _ = parse(tokens)
+  parsed, last = parse(tokens)
+  assert last + 1 == len(tokens), 'ill-formed expression'
 
   eval_str = fix_eval(parsed)
-  eval_str = "/home/rsoi/fix/build/src/tester/stateless-tester " + eval_str
+  eval_str = STATELESS_TESTER_LOC + eval_str
   eval_str = add_blobs(eval_str)
   call_fix(eval_str)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('-i', '--inline', type=str)
+  parser.add_argument('-f', '--file', type=str)
   args = parser.parse_args()
-  main(args.inline)
+  main(args.inline, args.file)
